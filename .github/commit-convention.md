@@ -4,7 +4,7 @@
 
 #### TL;DR:
 
-Messages must be matched by the following regex:
+The **header** (first line) must be matched by the following regex; a body and a footer may follow (checked by `scripts/verify-commit-msg.mjs`, run from the `commit-msg` hook via `pnpm verify-commit`):
 
 ```js
 /^((feat|fix|docs|style|core|i18n|a11y|report|misc|cli|audits|improve|security|deprecated|refactor|perf|test|workflow|build|ci|chore|types|wip|release|deps?|merge|examples?|revert)(\(.+\))?(\:|\!\:)|(Merge|Revert|Version)) .{1,50}$/;

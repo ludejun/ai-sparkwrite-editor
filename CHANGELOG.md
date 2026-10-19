@@ -24,6 +24,7 @@ All notable changes to ai-sparkwrite-editor are recorded here. The format follow
 - Divider styles target the divider's own `hr` (`> hr`) instead of any `hr` inside it, so ornamental dividers that contain their own markup render correctly.
 - With Yjs collaboration on, the toolbar's undo / redo buttons drive the `collaboration` extension's undo manager instead of staying disabled.
 - `RichTextToolbar` forwards its ref.
+- The `commit-msg` hook (`pnpm verify-commit`) checks only the header line, so a body and a footer (`Closes #…`, `BREAKING CHANGE:`, `Co-Authored-By:`) are accepted; the check is `scripts/verify-commit-msg.mjs` and the `verify-commit-msg` dependency is gone.
 
 ## 1.1.0 — 2026-09-24
 
