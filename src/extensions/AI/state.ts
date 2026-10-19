@@ -5,6 +5,11 @@ import type { Range } from '@tiptap/core';
 /** An open Ask-AI panel: the range it will replace and a preset prompt. */
 export interface AISession extends Range {
   prompt?: string;
+  /**
+   * Set when the session is opened; copies mapped through edits keep it, so
+   * an `external` panel survives them.
+   */
+  id?: number;
 }
 
 /** A span the AI is currently writing into, kept mapped through other edits. */

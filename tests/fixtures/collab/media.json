@@ -1,0 +1,39 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "content": [
+        { "type": "text", "text": "图：" },
+        {
+          "type": "image",
+          "attrs": {
+            "src": "/api/v1/assets/abc123/raw",
+            "alt": "图",
+            "width": 320,
+            "align": "left",
+            "rotate": 90,
+            "flipX": true
+          }
+        },
+        { "type": "text", "text": " 公式 " },
+        { "type": "katex", "attrs": { "text": "E=mc^2" } }
+      ]
+    },
+    {
+      "type": "imageBlock",
+      "attrs": { "src": "/api/v1/assets/def456/raw", "caption": "说明", "width": 480 }
+    },
+    {
+      "type": "paragraph",
+      "content": [{ "type": "katex", "attrs": { "text": "\\int_0^1 x\\,dx", "macros": "" } }]
+    },
+    { "type": "mermaid", "attrs": { "src": "data:image/svg+xml;base64,AAA", "width": 400 } },
+    { "type": "video", "attrs": { "src": "https://example.com/v.mp4", "width": 480 } },
+    { "type": "iframe", "attrs": { "src": "https://example.com", "height": 200 } },
+    {
+      "type": "attachment",
+      "attrs": { "fileName": "a.pdf", "fileSize": 1024, "url": "/files/a.pdf", "fileExt": "pdf" }
+    }
+  ]
+}

@@ -19,6 +19,7 @@ import {
   MinusIcon,
   PilcrowIcon,
   SeparatorHorizontalIcon,
+  SquareDashedIcon,
   StarIcon,
   TableIcon,
   TableOfContentsIcon,
@@ -74,11 +75,23 @@ registerIcons({
   NoticeWarning: TriangleAlertIcon,
   NoticeTip: StarIcon,
   SeparatorHorizontal: SeparatorHorizontalIcon,
+  SquareDashed: SquareDashedIcon,
   Table: TableIcon,
   TableOfContents: TableOfContentsIcon,
   TextQuote: BlockquoteLeftIcon,
   Video: VideoIcon,
 });
+
+/** Selects the last node of `type` that starts before the cursor (a block just inserted). */
+function selectNodeBefore(editor: Editor, type: string) {
+  const { from } = editor.state.selection;
+  let found = -1;
+  editor.state.doc.nodesBetween(0, from, (node, pos) => {
+    if (node.type.name === type && pos < from) found = pos;
+    return true;
+  });
+  if (found >= 0) editor.commands.setNodeSelection(found);
+}
 
 export function renderCommandListDefault({ t }: { t: (path: string) => string }) {
   // Insert comes first: someone who opens the menu usually wants a table, a
@@ -322,6 +335,43 @@ export function renderCommandListDefault({ t }: { t: (path: string) => string })
     shouldBeHidden: (editor) => !editor.schema.nodes.divider,
     action: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).setDivider().run();
+      // Select the new divider so its style picker opens right away.
+      selectNodeBefore(editor, 'divider');
+    },
+  });
+
+  // card: a tinted box (more looks from its style handle)
+  insert.commands.push({
+    name: 'card',
+    label: t('editor.card.tooltip'),
+    iconName: 'SquareDashed',
+    description: 'Put the block in a styled card',
+    aliases: ['card', 'box', 'kp', 'kapian', 'callout'],
+    shouldBeHidden: (editor) => !editor.schema.nodes.card,
+    action: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).setCard().run();
+    },
+  });
+
+  // pull quote: a centred quote with large quotation marks
+  insert.commands.push({
+    name: 'pullQuote',
+    label: t('editor.quote.golden'),
+    iconName: 'TextQuote',
+    description: 'A centred pull quote',
+    aliases: ['quote', 'pull', 'jinju', 'jj'],
+    hiddenUntilSearched: true,
+    shouldBeHidden: (editor) =>
+      !editor.schema.nodes.blockquote ||
+      !editor.extensionManager.extensions.some((ext) => ext.name === 'blockStyles'),
+    action: ({ editor, range }) => {
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .setBlockquote()
+        .setBlockVariant('blockquote', 'center')
+        .run();
     },
   });
 

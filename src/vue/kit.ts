@@ -8,7 +8,18 @@ import { Text } from '@tiptap/extension-text';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Dropcursor, Gapcursor, Placeholder } from '@tiptap/extensions';
 import { PinOff } from 'lucide-vue-next';
-import { computed, defineComponent, h, ref, type PropType, type VNode } from 'vue';
+import {
+  computed,
+  defineComponent,
+  h,
+  onBeforeUnmount,
+  onMounted,
+  onUpdated,
+  ref,
+  watch,
+  type PropType,
+  type VNode,
+} from 'vue';
 
 import {
   Blockquote,
@@ -50,12 +61,22 @@ import {
   Video,
   Notice,
 } from '@/core';
+import { Collaboration, CollaborationCaret } from '@/extensions/Collaboration/Collaboration';
 import { buildKit, extensionNames, type KitOptions, type KitRegistry } from '@/kit/shared';
+import {
+  measureToolbar,
+  planToolbar,
+  segmentOf,
+  TOOLBAR_DIVIDER_CLASS,
+  TOOLBAR_GROUP_ATTR,
+  type ToolbarGroupSpec,
+} from '@/kit/toolbarLayout';
 
 import { AI, AIAutocomplete, RichTextAI, RichTextAIComposer } from './ai';
 import {
   RichTextBubbleImage,
-  RichTextBubbleLink, RichTextBubbleNotice,
+  RichTextBubbleLink,
+  RichTextBubbleNotice,
   RichTextBubbleTable,
   RichTextBubbleText,
 } from './bubble';
@@ -182,6 +203,9 @@ const REGISTRY = {
   codeView: { extension: CodeView },
   ai: { extension: AI },
   aiAutocomplete: { extension: AIAutocomplete },
+  // Real-time co-editing over a Y.Doc: opt-in; when on, `history` is left out (Yjs has its own undo).
+  collaboration: { extension: Collaboration, optIn: true },
+  collaborationCaret: { extension: CollaborationCaret, optIn: true },
 } satisfies KitRegistry;
 
 export type RichTextKitOptions = KitOptions<typeof REGISTRY>;
@@ -216,7 +240,10 @@ function withDividers(groups: Maybe[][]): VNode[] {
     .map((group) => group.filter((node): node is VNode => !!node))
     .filter((group) => group.length)
     .forEach((group, index) => {
-      if (index) out.push(h(RichTextToolbarDivider, { key: `divider-${index}` }));
+      if (index)
+        out.push(
+          h(RichTextToolbarDivider, { key: `divider-${index}`, class: TOOLBAR_DIVIDER_CLASS })
+        );
       out.push(...group);
     });
   return out;
@@ -251,12 +278,23 @@ interface PanelEntry {
   control: Parameters<typeof h>[0];
 }
 
+/** A group of the main row: its collapse priority and the controls in it. */
+interface RowGroup extends ToolbarGroupSpec {
+  entries: PanelEntry[];
+  /** A control the user pinned from the panel. */
+  pin?: boolean;
+}
+
+const sameList = (a: string[], b: string[]) =>
+  a.length === b.length && a.every((item, index) => item === b[index]);
+
 /**
  * A complete Vue toolbar for `RichTextKit` (or any editor). Each control
  * appears only when its extension is registered. Rows of the "More tools"
  * panel can be dragged onto the toolbar to pin them there (and back to
  * unpin); the choice is remembered in localStorage. The default slot adds
- * controls before the panel.
+ * controls before the panel. With `overflow="collapse"` the row never wraps:
+ * groups it cannot hold move into the panel, least used first.
  */
 export const RichTextKitToolbar = defineComponent({
   name: 'RichTextKitToolbar',
@@ -269,10 +307,17 @@ export const RichTextKitToolbar = defineComponent({
     storageKey: { type: String, default: DEFAULT_PINS_KEY },
     /** Controls pinned before the user changes anything, by panel key. */
     defaultPins: { type: Array as PropType<string[]>, default: () => [] },
+    /**
+     * `wrap` (default) breaks a narrow row into further lines; `collapse`
+     * keeps one line and moves whole groups into a "More tools" section at
+     * the top of the panel (pins, colours, alignment, insert, undo/redo).
+     * The toolbar reports the collapsed groups in `data-collapsed`.
+     */
+    overflow: { type: String as PropType<'wrap' | 'collapse'>, default: 'wrap' },
   },
   setup(props, { slots }) {
     const editor = useEditorInstance();
-    const { t } = useLocale();
+    const { t, lang } = useLocale();
     const names = computed(() => extensionNames(editor.value));
     const pins = ref<string[]>(readPins(props.storageKey) ?? props.defaultPins);
     const dropTarget = ref<'toolbar' | 'panel' | null>(null);
@@ -293,8 +338,57 @@ export const RichTextKitToolbar = defineComponent({
       dropTarget.value = target;
     };
 
+    // Overflow (`collapse`): the natural width of every group seen so far — a
+    // collapsed group is not in the DOM to measure — and the current plan.
+    const toolbar = ref<{ $el: HTMLElement } | null>(null);
+    const collapsed = ref<string[]>([]);
+    let widths: Record<string, number> = {};
+    let specs: ToolbarGroupSpec[] = [];
+    let measuredLang = lang();
+    let observer: ResizeObserver | null = null;
+
+    const relayout = () => {
+      const root = toolbar.value?.$el;
+      if (!root || props.overflow !== 'collapse') return;
+      const metrics = measureToolbar(root);
+      Object.assign(widths, metrics.widths);
+      const plan = planToolbar({ ...metrics, groups: specs, widths });
+      if (!sameList(collapsed.value, plan.collapsed)) collapsed.value = plan.collapsed;
+      if (!observer) return;
+      // Width changes of the row and of the groups on it (fonts loading, a dropdown's label).
+      observer.disconnect();
+      observer.observe(root);
+      root
+        .querySelectorAll(`:scope > [${TOOLBAR_GROUP_ATTR}]`)
+        .forEach((group) => observer?.observe(group));
+    };
+
+    onMounted(() => {
+      if (typeof ResizeObserver !== 'undefined') observer = new ResizeObserver(relayout);
+      relayout();
+    });
+    onUpdated(relayout);
+    onBeforeUnmount(() => observer?.disconnect());
+    watch(
+      () => props.overflow,
+      (mode) => {
+        if (mode !== 'collapse') {
+          observer?.disconnect();
+          collapsed.value = [];
+        }
+      }
+    );
+
     return () => {
       const on = (name: string) => names.value.has(name);
+      const collapse = props.overflow === 'collapse';
+      // Read unconditionally, so the plan `relayout` sets always re-renders.
+      const planned = collapsed.value;
+      if (lang() !== measuredLang) {
+        // Labels changed: every width is suspect, measure again.
+        measuredLang = lang();
+        widths = {};
+      }
       const groups: { label: string; entries: PanelEntry[] }[] = [
         {
           label: t('editor.slash.format'),
@@ -391,7 +485,170 @@ export const RichTextKitToolbar = defineComponent({
           ],
         },
       ];
-      const available = groups.flatMap((group) => group.entries).filter((entry) => on(entry.name));
+      // The main row, by group. Each group collapses as a whole; `null` never does.
+      const row: RowGroup[] = [
+        {
+          id: 'ai',
+          priority: null,
+          entries: [{ key: 'ai', name: 'ai', label: t('editor.ai.title'), control: RichTextAI }],
+        },
+        {
+          id: 'history',
+          priority: 5,
+          entries: [
+            {
+              key: 'undo',
+              name: 'undoRedo',
+              label: t('editor.undo.tooltip'),
+              control: RichTextUndo,
+            },
+            {
+              key: 'redo',
+              name: 'undoRedo',
+              label: t('editor.redo.tooltip'),
+              control: RichTextRedo,
+            },
+          ],
+        },
+        {
+          id: 'paragraph',
+          priority: null,
+          entries: [
+            {
+              key: 'heading',
+              name: 'heading',
+              label: t('editor.heading.tooltip'),
+              control: RichTextHeading,
+            },
+          ],
+        },
+        {
+          id: 'marks',
+          priority: null,
+          segment: 'marks',
+          entries: [
+            { key: 'bold', name: 'bold', label: t('editor.bold.tooltip'), control: RichTextBold },
+            {
+              key: 'italic',
+              name: 'italic',
+              label: t('editor.italic.tooltip'),
+              control: RichTextItalic,
+            },
+            {
+              key: 'underline',
+              name: 'underline',
+              label: t('editor.underline.tooltip'),
+              control: RichTextUnderline,
+            },
+            {
+              key: 'strike',
+              name: 'strike',
+              label: t('editor.strike.tooltip'),
+              control: RichTextStrike,
+            },
+            { key: 'code', name: 'code', label: t('editor.code.tooltip'), control: RichTextCode },
+          ],
+        },
+        {
+          id: 'colors',
+          priority: 1,
+          segment: 'marks',
+          entries: [
+            {
+              key: 'color',
+              name: 'color',
+              label: t('editor.color.tooltip'),
+              control: RichTextColor,
+            },
+            {
+              key: 'highlight',
+              name: 'highlight',
+              label: t('editor.highlight.tooltip'),
+              control: RichTextHighlight,
+            },
+            {
+              key: 'clear',
+              name: 'clear',
+              label: t('editor.clear.tooltip'),
+              control: RichTextClear,
+            },
+          ],
+        },
+        {
+          id: 'lists',
+          priority: null,
+          segment: 'lists',
+          entries: [
+            {
+              key: 'bulletList',
+              name: 'bulletList',
+              label: t('editor.bulletlist.tooltip'),
+              control: RichTextBulletList,
+            },
+            {
+              key: 'orderedList',
+              name: 'orderedList',
+              label: t('editor.orderedlist.tooltip'),
+              control: RichTextOrderedList,
+            },
+            {
+              key: 'taskList',
+              name: 'taskList',
+              label: t('editor.tasklist.tooltip'),
+              control: RichTextTaskList,
+            },
+            {
+              key: 'blockquote',
+              name: 'blockquote',
+              label: t('editor.blockquote.tooltip'),
+              control: RichTextBlockquote,
+            },
+          ],
+        },
+        {
+          id: 'align',
+          priority: 2,
+          segment: 'lists',
+          entries: [
+            {
+              key: 'textAlign',
+              name: 'textAlign',
+              label: t('editor.textalign.tooltip'),
+              control: RichTextTextAlign,
+            },
+          ],
+        },
+        {
+          id: 'insert',
+          priority: 4,
+          entries: [
+            { key: 'link', name: 'link', label: t('editor.link.tooltip'), control: RichTextLink },
+            {
+              key: 'image',
+              name: 'image',
+              label: t('editor.image.tooltip'),
+              control: RichTextImage,
+            },
+            {
+              key: 'table',
+              name: 'table',
+              label: t('editor.table.tooltip'),
+              control: RichTextTable,
+            },
+            {
+              key: 'divider',
+              name: 'divider',
+              label: t('editor.divider.tooltip'),
+              control: RichTextDivider,
+            },
+          ],
+        },
+      ];
+
+      const available = [
+        ...groups.flatMap((group) => group.entries),
+        ...row.flatMap((group) => group.entries),
+      ].filter((entry) => on(entry.name));
       const pinned = pins.value
         .map((key) => available.find((entry) => entry.key === key))
         .filter((entry): entry is PanelEntry => !!entry);
@@ -403,16 +660,131 @@ export const RichTextKitToolbar = defineComponent({
           ),
         }))
         .filter((group) => group.entries.length);
-      const showMore = props.more && (panelGroups.length > 0 || pinned.length > 0);
+      const slot = (slots.default?.() ?? []) as VNode[];
+
+      // Everything on the row, in order: the groups, the pins, then the slot.
+      const rowGroups: RowGroup[] = [
+        ...row
+          .map((group) => ({
+            ...group,
+            entries: group.entries.filter(
+              (entry) => on(entry.name) && !pins.value.includes(entry.key)
+            ),
+          }))
+          .filter((group) => group.entries.length),
+        ...pinned.map(
+          (entry): RowGroup => ({
+            id: `pin:${entry.key}`,
+            priority: 0,
+            segment: 'pins',
+            pin: true,
+            entries: [entry],
+          })
+        ),
+        ...(slot.length
+          ? [{ id: 'children', priority: null, entries: [] } satisfies RowGroup]
+          : []),
+      ];
+      specs = rowGroups.map(({ id, priority, segment }) => ({ id, priority, segment }));
+      // A group without a known width forces a render with everything inline;
+      // `onUpdated` then measures it and applies the plan before paint.
+      const measuring = collapse && specs.some((group) => widths[group.id] === undefined);
+      const hidden = collapse && !measuring ? planned : [];
+      const collapsedGroups = hidden
+        .map((id) => rowGroups.find((group) => group.id === id))
+        .filter((group): group is RowGroup => !!group);
+      const inlineGroups = rowGroups.filter((group) => !hidden.includes(group.id));
+      const inlinePinned = pinned.filter((entry) => !hidden.includes(`pin:${entry.key}`));
+      // In collapse mode the trigger is the way back to the collapsed groups, so it always shows.
+      const showMore = collapse || (props.more && (panelGroups.length > 0 || pinned.length > 0));
       const unpin = (key: string) => setPins(pins.value.filter((item) => item !== key));
+
+      const panelRow = (entry: PanelEntry) =>
+        h(
+          'div',
+          {
+            key: entry.key,
+            class: 'richtext-kit-toolbar__row',
+            draggable: props.pinnable,
+            onDragstart: startDrag(entry.key),
+          },
+          [h(RichTextToolbarMoreRow, { label: entry.label }, () => h(entry.control))]
+        );
+      const pinnedRow = (entry: PanelEntry) =>
+        h('div', { key: entry.key, class: 'richtext-kit-toolbar__pinned-row' }, [
+          h(RichTextToolbarMoreRow, { label: entry.label }, () => h(entry.control)),
+          h(
+            'button',
+            {
+              type: 'button',
+              class: 'richtext-kit-toolbar__unpin-row',
+              'aria-label': t('editor.more.unpin'),
+              title: t('editor.more.unpin'),
+              onClick: () => unpin(entry.key),
+            },
+            [h(PinOff, { size: 14, 'aria-hidden': 'true' })]
+          ),
+        ]);
+      /** A group of the main row, wrapped so its width can be measured. */
+      const rowGroup = (group: RowGroup): VNode => {
+        const attrs = { key: group.id, [TOOLBAR_GROUP_ATTR]: group.id };
+        if (group.id === 'children')
+          return h('span', { ...attrs, class: 'richtext-kit-toolbar__group' }, slot);
+        if (group.pin) {
+          // A control the user dragged out of the panel. Drag it back to unpin it.
+          const [entry] = group.entries;
+          return h(
+            'span',
+            {
+              ...attrs,
+              class: 'richtext-kit-toolbar__pinned',
+              draggable: props.pinnable,
+              title: entry.label,
+              onDragstart: startDrag(entry.key),
+            },
+            [
+              h(entry.control),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  class: 'richtext-kit-toolbar__unpin',
+                  'aria-label': t('editor.more.unpin'),
+                  title: t('editor.more.unpin'),
+                  onClick: () => unpin(entry.key),
+                },
+                '×'
+              ),
+            ]
+          );
+        }
+        return h(
+          'span',
+          { ...attrs, class: 'richtext-kit-toolbar__group' },
+          group.entries.map((entry) => h(entry.control, { key: entry.key }))
+        );
+      };
+
+      // Divider slots: consecutive groups of one segment share a slot.
+      const segments: Maybe[][] = [];
+      inlineGroups.forEach((group, index) => {
+        const previous = inlineGroups[index - 1];
+        if (!previous || segmentOf(previous) !== segmentOf(group)) segments.push([]);
+        segments[segments.length - 1].push(rowGroup(group));
+      });
 
       return h(
         RichTextToolbar,
         {
+          ref: toolbar,
           class: [
             'richtext-kit-toolbar',
+            collapse ? 'richtext-kit-toolbar--collapse' : null,
             dropTarget.value === 'toolbar' ? 'richtext-kit-toolbar--drop' : null,
           ],
+          'data-overflow': props.overflow,
+          'data-collapsed': collapse ? hidden.join(' ') : undefined,
+          'data-pinnable': props.pinnable || undefined,
           onDragover: accept('toolbar'),
           onDragleave: (event: DragEvent) => {
             const root = event.currentTarget as HTMLElement;
@@ -427,64 +799,7 @@ export const RichTextKitToolbar = defineComponent({
           },
         },
         () => [
-          ...withDividers([
-            [on('ai') && h(RichTextAI, { key: 'ai' })],
-            [
-              on('undoRedo') && h(RichTextUndo, { key: 'undo' }),
-              on('undoRedo') && h(RichTextRedo, { key: 'redo' }),
-            ],
-            [on('heading') && h(RichTextHeading, { key: 'heading' })],
-            [
-              on('bold') && h(RichTextBold, { key: 'bold' }),
-              on('italic') && h(RichTextItalic, { key: 'italic' }),
-              on('underline') && h(RichTextUnderline, { key: 'underline' }),
-              on('strike') && h(RichTextStrike, { key: 'strike' }),
-              on('code') && h(RichTextCode, { key: 'code' }),
-              on('color') && h(RichTextColor, { key: 'color' }),
-              on('highlight') && h(RichTextHighlight, { key: 'highlight' }),
-              on('clear') && h(RichTextClear, { key: 'clear' }),
-            ],
-            [
-              on('bulletList') && h(RichTextBulletList, { key: 'bulletList' }),
-              on('orderedList') && h(RichTextOrderedList, { key: 'orderedList' }),
-              on('taskList') && h(RichTextTaskList, { key: 'taskList' }),
-              on('blockquote') && h(RichTextBlockquote, { key: 'blockquote' }),
-              on('textAlign') && h(RichTextTextAlign, { key: 'textAlign' }),
-            ],
-            [
-              on('link') && h(RichTextLink, { key: 'link' }),
-              on('image') && h(RichTextImage, { key: 'image' }),
-              on('table') && h(RichTextTable, { key: 'table' }),
-              on('divider') && h(RichTextDivider, { key: 'divider' }),
-            ],
-            pinned.map((entry) =>
-              h(
-                'span',
-                {
-                  key: `pin-${entry.key}`,
-                  class: 'richtext-kit-toolbar__pinned',
-                  draggable: props.pinnable,
-                  title: entry.label,
-                  onDragstart: startDrag(entry.key),
-                },
-                [
-                  h(entry.control),
-                  h(
-                    'button',
-                    {
-                      type: 'button',
-                      class: 'richtext-kit-toolbar__unpin',
-                      'aria-label': t('editor.more.unpin'),
-                      title: t('editor.more.unpin'),
-                      onClick: () => unpin(entry.key),
-                    },
-                    '×'
-                  ),
-                ]
-              )
-            ),
-            [...((slots.default?.() ?? []) as VNode[])],
-          ]),
+          ...withDividers(segments),
           showMore
             ? h(
                 'div',
@@ -505,56 +820,32 @@ export const RichTextKitToolbar = defineComponent({
                 },
                 [
                   h(RichTextToolbarMore, { label: t('editor.more'), width: '620px' }, () => [
+                    collapsedGroups.length
+                      ? // What the row could not hold, until it is wide enough again.
+                        h(
+                          RichTextToolbarMoreGroup,
+                          { key: 'overflow', label: t('editor.more.overflowGroup'), columns: 3 },
+                          () =>
+                            collapsedGroups.flatMap((group) =>
+                              group.entries.map((entry) =>
+                                group.pin ? pinnedRow(entry) : panelRow(entry)
+                              )
+                            )
+                        )
+                      : null,
                     ...panelGroups.map((group) =>
                       h(
                         RichTextToolbarMoreGroup,
                         { key: group.label, label: group.label, columns: 3 },
-                        () =>
-                          group.entries.map((entry) =>
-                            h(
-                              'div',
-                              {
-                                key: entry.key,
-                                class: 'richtext-kit-toolbar__row',
-                                draggable: props.pinnable,
-                                onDragstart: startDrag(entry.key),
-                              },
-                              [
-                                h(RichTextToolbarMoreRow, { label: entry.label }, () =>
-                                  h(entry.control)
-                                ),
-                              ]
-                            )
-                          )
+                        () => group.entries.map(panelRow)
                       )
                     ),
-                    props.pinnable && pinned.length
-                      ? h(
+                    props.pinnable && inlinePinned.length
+                      ? // What is on the toolbar already, each with a one-click way back.
+                        h(
                           RichTextToolbarMoreGroup,
-                          { label: t('editor.more.pinned'), columns: 3 },
-                          () =>
-                            pinned.map((entry) =>
-                              h(
-                                'div',
-                                { key: entry.key, class: 'richtext-kit-toolbar__pinned-row' },
-                                [
-                                  h(RichTextToolbarMoreRow, { label: entry.label }, () =>
-                                    h(entry.control)
-                                  ),
-                                  h(
-                                    'button',
-                                    {
-                                      type: 'button',
-                                      class: 'richtext-kit-toolbar__unpin-row',
-                                      'aria-label': t('editor.more.unpin'),
-                                      title: t('editor.more.unpin'),
-                                      onClick: () => unpin(entry.key),
-                                    },
-                                    [h(PinOff, { size: 14, 'aria-hidden': 'true' })]
-                                  ),
-                                ]
-                              )
-                            )
+                          { key: 'pinned', label: t('editor.more.pinned'), columns: 3 },
+                          () => inlinePinned.map(pinnedRow)
                         )
                       : null,
                     props.pinnable

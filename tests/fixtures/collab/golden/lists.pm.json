@@ -1,0 +1,160 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null,
+                "indent": 0
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "one"
+                }
+              ]
+            },
+            {
+              "type": "bulletList",
+              "content": [
+                {
+                  "type": "listItem",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "textAlign": null,
+                        "indent": 0
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "marks": [
+                            {
+                              "type": "italic"
+                            }
+                          ],
+                          "text": "nested"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null,
+                "indent": 0
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "two"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "orderedList",
+      "attrs": {
+        "start": 3,
+        "type": null
+      },
+      "content": [
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null,
+                "indent": 0
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "third"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null,
+                "indent": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "taskList",
+      "content": [
+        {
+          "type": "taskItem",
+          "attrs": {
+            "checked": true
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null,
+                "indent": 0
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "done"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "taskItem",
+          "attrs": {
+            "checked": false
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlign": null,
+                "indent": 0
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "todo"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

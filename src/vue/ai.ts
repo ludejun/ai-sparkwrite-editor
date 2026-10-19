@@ -736,6 +736,8 @@ export const RichTextAIComposer = defineComponent({
       prompt: string;
       target: AIWriteTarget;
       attachments: AIAttachment[];
+      /** The composer action the request came from, when it came from a chip. */
+      actionKey?: string;
     } | null = null;
     // Images and text files go with the prompt, like in the AI panel: picked,
     // dropped onto the box or pasted into the prompt.
@@ -807,7 +809,8 @@ export const RichTextAIComposer = defineComponent({
       instruction: string,
       where: AIWriteTarget,
       refineFrom?: WriteWithAIResult | null,
-      files: AIAttachment[] = attachments.value
+      files: AIAttachment[] = attachments.value,
+      actionKey?: string
     ) {
       const current = editor.value;
       if (!current || busy.value || !instruction.trim()) return;
@@ -829,7 +832,26 @@ export const RichTextAIComposer = defineComponent({
           attachments: files,
           signal: active.signal,
         });
-        if (!refineFrom) lastRequest = { prompt: instruction, target: where, attachments: files };
+        if (!refineFrom)
+          lastRequest = { prompt: instruction, target: where, attachments: files, actionKey };
+        // A chip's answer is offered to the host first: `true` means it took
+        // the answer somewhere else (a title field, say), so the document gets
+        // its original content back and nothing is left to keep or undo.
+        if (actionKey) {
+          const handled = await aiOptionsOf(current)?.onComposeResult?.({
+            action: actionKey,
+            markdown: next.markdown,
+            target: where,
+            editor: current,
+            result: next,
+          });
+          if (handled === true) {
+            next.discard();
+            prompt.value = '';
+            attachments.value = [];
+            return;
+          }
+        }
         result.value = next;
         prompt.value = '';
         attachments.value = [];
@@ -902,7 +924,14 @@ export const RichTextAIComposer = defineComponent({
             tabindex: hidden ? -1 : undefined,
             title: composerPrompt(action),
             disabled: !current.editable,
-            onClick: () => void run(composerPrompt(action), action.target),
+            onClick: () =>
+              void run(
+                composerPrompt(action),
+                action.target,
+                undefined,
+                attachments.value,
+                action.key
+              ),
           },
           [Icon ? h(Icon, { size: 14 }) : null, t(action.key)]
         );
@@ -956,7 +985,8 @@ export const RichTextAIComposer = defineComponent({
                         lastRequest.prompt,
                         lastRequest.target,
                         answer,
-                        lastRequest.attachments
+                        lastRequest.attachments,
+                        lastRequest.actionKey
                       );
                   },
                 },
@@ -998,7 +1028,13 @@ export const RichTextAIComposer = defineComponent({
                                   title: composerPrompt(action),
                                   onClick: () => {
                                     moreOpen.value = false;
-                                    void run(composerPrompt(action), action.target);
+                                    void run(
+                                      composerPrompt(action),
+                                      action.target,
+                                      undefined,
+                                      attachments.value,
+                                      action.key
+                                    );
                                   },
                                 },
                                 [Icon ? h(Icon, { size: 14 }) : null, t(action.key)]

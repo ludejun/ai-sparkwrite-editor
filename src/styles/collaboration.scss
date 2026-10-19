@@ -1,0 +1,32 @@
+// Remote carets and selections of collaborators (Collaboration / CollaborationCaret, Yjs).
+// The colour comes from the user (`--richtext-collab-color`, set inline by the caret renderer).
+
+.richtext-collab-caret {
+  position: relative;
+  margin-left: -1px;
+  margin-right: -1px;
+  border-left: 2px solid var(--richtext-collab-color, #6918b4);
+  word-break: normal;
+  pointer-events: none;
+}
+
+.richtext-collab-caret__label {
+  position: absolute;
+  top: -1.45em;
+  left: -2px;
+  padding: 1px 6px;
+  border-radius: 4px 4px 4px 0;
+  background: var(--richtext-collab-color, #6918b4);
+  color: #fff;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+}
+
+.richtext-collab-selection {
+  border-radius: 2px;
+}

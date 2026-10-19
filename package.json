@@ -1,6 +1,6 @@
 {
   "name": "ai-sparkwrite-editor",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "AI-first rich-text editor SDK on Tiptap: streaming AI writing that lands as real document nodes, AI-generated formulas and diagrams, plus toolbar, bubble menus, tables, code, images, 16 languages and session replay. React UI today, framework-agnostic core.",
   "keywords": [
     "ai",
@@ -55,6 +55,9 @@
       "theme": [
         "./lib/theme.d.ts"
       ],
+      "static": [
+        "./lib/static.d.ts"
+      ],
       "*": [
         "./lib/*",
         "./*"
@@ -79,6 +82,9 @@
       ],
       "./codeblock": [
         "./lib/extensions/CodeBlock/index.d.ts"
+      ],
+      "./collaboration": [
+        "./lib/extensions/Collaboration/index.d.ts"
       ],
       "./codeview": [
         "./lib/extensions/CodeView/index.d.ts"
@@ -328,6 +334,10 @@
       "require": "./lib/style.css",
       "import": "./lib/style.css"
     },
+    "./content.css": {
+      "require": "./lib/content.css",
+      "import": "./lib/content.css"
+    },
     "./lib/*": "./lib/*",
     "./package.json": "./package.json",
     "./*": "./lib/*",
@@ -409,6 +419,16 @@
       "import": {
         "types": "./lib/extensions/CodeBlock/index.d.ts",
         "default": "./lib/CodeBlock.js"
+      }
+    },
+    "./collaboration": {
+      "require": {
+        "types": "./lib/extensions/Collaboration/index.d.ts",
+        "default": "./lib/Collaboration.cjs"
+      },
+      "import": {
+        "types": "./lib/extensions/Collaboration/index.d.ts",
+        "default": "./lib/Collaboration.js"
       }
     },
     "./color": {
@@ -1056,6 +1076,16 @@
         "default": "./lib/core.js"
       }
     },
+    "./static": {
+      "require": {
+        "types": "./lib/static.d.ts",
+        "default": "./lib/static.cjs"
+      },
+      "import": {
+        "types": "./lib/static.d.ts",
+        "default": "./lib/static.js"
+      }
+    },
     "./vue": {
       "require": {
         "types": "./lib/vue/index.d.ts",
@@ -1068,7 +1098,7 @@
     }
   },
   "scripts": {
-    "build:lib": "vite build",
+    "build:lib": "vite build && node scripts/build-content-css.mjs",
     "build:lib:dev": "vite build  --mode development --watch",
     "build:playground": "pnpm build:lib && pnpm --dir ./playground run build",
     "docs:dev": "pnpm --parallel --filter docs... dev",

@@ -1,0 +1,360 @@
+/* ==========================================================================
+   Article themes (公众号风格主题, starnote CONTRACTS-r9 §1).
+   The article root carries `sn-theme sn-theme--<id>` (the editor's .ProseMirror, the static
+   `.sn-article`, the blog's `.post-body`). A theme restyles only the plain blocks: headings and
+   quotes WITHOUT a variant (`:not(.sn-h)` / `:not(.sn-quote)`), plain dividers (`horizontalRule`,
+   `divider--line`), image captions, body typography; styled cards follow through `--sn-accent` and
+   the theme's corner radius.
+
+   The token map is the same as starnote-publish `packages/core/src/themes.ts` (a parity test there
+   reads this file), and the looks match its WeChat converter (`convertWechat(json, { theme })`).
+   Plain CSS output, system fonts only.
+   ========================================================================== */
+@use 'sass:color';
+@use 'sass:map';
+
+$sn-themes: (
+  business: (
+    accent: #1f4e8c,
+    accent2: #c69c4f,
+    ink: #3a3a3a,
+    heading: #1b2431,
+    muted: #8a8f99,
+    fontSize: 15,
+    lineHeight: 1.75,
+    paragraphGap: 18,
+    justify: true,
+    letterSpacing: 0.5,
+    h2: bar,
+    h3: accent,
+    quote: line,
+    cardRadius: 4,
+    hr: short,
+    captionSize: 12,
+    captionColor: #8a8f99,
+    captionAlign: center,
+    captionItalic: false,
+  ),
+  tech: (
+    accent: #1e6fff,
+    accent2: #00b8d9,
+    ink: #2b3445,
+    heading: #0f1b33,
+    muted: #8592a6,
+    fontSize: 15,
+    lineHeight: 1.8,
+    paragraphGap: 20,
+    justify: true,
+    letterSpacing: 0.5,
+    h2: tag,
+    h3: dot,
+    quote: card,
+    cardRadius: 10,
+    hr: gradient,
+    captionSize: 12,
+    captionColor: #8592a6,
+    captionAlign: center,
+    captionItalic: false,
+  ),
+  warm: (
+    accent: #b4613a,
+    accent2: #d9a35b,
+    ink: #4a4038,
+    heading: #3a2e25,
+    muted: #a29486,
+    fontSize: 16,
+    lineHeight: 1.9,
+    paragraphGap: 24,
+    justify: true,
+    letterSpacing: 1,
+    h2: center,
+    h3: plain,
+    quote: center,
+    cardRadius: 6,
+    hr: dots,
+    captionSize: 13,
+    captionColor: #a29486,
+    captionAlign: center,
+    captionItalic: true,
+  ),
+  magazine: (
+    accent: #c8102e,
+    accent2: #1a1a1a,
+    ink: #2a2a2a,
+    heading: #111111,
+    muted: #8c8c8c,
+    fontSize: 16,
+    lineHeight: 1.75,
+    paragraphGap: 22,
+    justify: true,
+    letterSpacing: 0.3,
+    h2: underline,
+    h3: accent,
+    quote: rule,
+    cardRadius: 0,
+    hr: double,
+    captionSize: 12,
+    captionColor: #8c8c8c,
+    captionAlign: left,
+    captionItalic: false,
+  ),
+  fresh: (
+    accent: #2a9d6f,
+    accent2: #5cbf95,
+    ink: #3b4a43,
+    heading: #1f3b2f,
+    muted: #8aa197,
+    fontSize: 15,
+    lineHeight: 1.8,
+    paragraphGap: 20,
+    justify: true,
+    letterSpacing: 0.5,
+    h2: soft,
+    h3: dot,
+    quote: soft,
+    cardRadius: 14,
+    hr: dashed,
+    captionSize: 12,
+    captionColor: #8aa197,
+    captionAlign: center,
+    captionItalic: false,
+  ),
+);
+
+@each $id, $t in $sn-themes {
+  $accent: map.get($t, accent);
+  $accent2: map.get($t, accent2);
+  $fs: map.get($t, fontSize);
+  $lh: map.get($t, lineHeight);
+  $radius: map.get($t, cardRadius) * 1px;
+  $h2: map.get($t, h2);
+  $h3: map.get($t, h3);
+  $quote: map.get($t, quote);
+  $hr: map.get($t, hr);
+  $root: '.ProseMirror.sn-theme.sn-theme--#{$id}';
+
+  /* ---------- #{$id}: body ---------- */
+  #{$root} {
+    --sn-accent: #{$accent};
+    --sn-accent-2: #{$accent2};
+    --sn-accent-ink: #{$accent};
+    --sn-theme-ink: #{map.get($t, ink)};
+    --sn-theme-heading: #{map.get($t, heading)};
+    --sn-theme-quote: #{color.mix(map.get($t, ink), map.get($t, muted), 50%)};
+    --sn-theme-deep: #{color.mix(#000, $accent, 25%)};
+    --sn-theme-deep-quote: #{color.mix(#000, $accent, 10%)};
+    font-size: $fs * 1px;
+    line-height: $lh;
+    color: var(--sn-theme-ink);
+    letter-spacing: map.get($t, letterSpacing) * 1px;
+    @if map.get($t, justify) {
+      text-align: justify;
+    }
+  }
+  /* dark pages: text colours follow the page, the accents stay */
+  .dark #{$root},
+  #{$root}.dark {
+    --sn-theme-ink: currentColor;
+    --sn-theme-heading: currentColor;
+    --sn-theme-quote: currentColor;
+    --sn-theme-deep: currentColor;
+    --sn-theme-deep-quote: currentColor;
+  }
+
+  #{$root} p:not(.sn-box--stat p) {
+    margin-top: 0;
+    margin-bottom: map.get($t, paragraphGap) * 1px;
+    line-height: $lh;
+  }
+  #{$root} p:not(.sn-box--stat p):last-child {
+    margin-bottom: 0;
+  }
+
+  /* ---------- #{$id}: headings without a variant ---------- */
+  #{$root} h2:not(.sn-h),
+  #{$root} h3:not(.sn-h) {
+    line-height: 1.5;
+    letter-spacing: 0.5px;
+    color: var(--sn-theme-heading);
+  }
+  #{$root} h2:not(.sn-h) {
+    margin: 28px 0 14px;
+    font-size: ($fs + 4) * 1px;
+    @if $h2 == bar {
+      padding: 2px 0 2px 12px;
+      border-left: 4px solid $accent;
+    } @else if $h2 == tag {
+      width: fit-content;
+      max-width: 100%;
+      padding: 4px 14px;
+      border-radius: 4px;
+      background-color: $accent;
+      color: #fff;
+    } @else if $h2 == center {
+      text-align: center;
+    } @else if $h2 == underline {
+      padding-bottom: 10px;
+      background-image:
+        linear-gradient($accent, $accent),
+        linear-gradient(rgba(map.get($t, heading), 0.15), rgba(map.get($t, heading), 0.15));
+      background-size:
+        48px 3px,
+        100% 1px;
+      background-position:
+        left bottom,
+        left bottom;
+      background-repeat: no-repeat;
+    } @else if $h2 == soft {
+      padding: 6px 14px;
+      border-radius: 8px;
+      background-color: rgba($accent, 0.1);
+      color: var(--sn-theme-deep);
+    }
+  }
+  @if $h2 == center {
+    #{$root} h2:not(.sn-h)::after {
+      content: '';
+      display: block;
+      width: 28px;
+      height: 3px;
+      margin: 10px auto 0;
+      border-radius: 1.5px;
+      background: $accent;
+    }
+  }
+  #{$root} h3:not(.sn-h) {
+    margin: 24px 0 12px;
+    font-size: ($fs + 2) * 1px;
+    @if $h3 == accent {
+      color: $accent;
+    } @else if $h3 == dot {
+      padding-left: 16px;
+      background: radial-gradient(circle, $accent 3.6px, transparent 4px)
+        0
+        calc(0.75em - 4px) /
+        8px
+        8px
+        no-repeat;
+    }
+  }
+  #{$root} > h2:not(.sn-h):first-child,
+  #{$root} > h3:not(.sn-h):first-child {
+    margin-top: 0;
+  }
+
+  /* ---------- #{$id}: quotes without a variant ---------- */
+  #{$root} blockquote:not(.sn-quote) {
+    margin: 20px 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    font-style: normal;
+    @if $quote == line {
+      padding: 4px 0 4px 14px;
+      border-left: 3px solid $accent;
+      color: var(--sn-theme-quote);
+    } @else if $quote == card {
+      padding: 14px 18px;
+      border-radius: $radius;
+      background-color: rgba($accent, 0.06);
+      color: inherit;
+    } @else if $quote == center {
+      padding: 4px 24px;
+      text-align: center;
+      font-size: ($fs + 1) * 1px;
+      color: var(--sn-theme-deep-quote);
+    } @else if $quote == rule {
+      padding: 12px 4px;
+      border-top: 1px solid var(--sn-theme-heading);
+      border-bottom: 1px solid var(--sn-theme-heading);
+      font-size: ($fs + 1) * 1px;
+      color: var(--sn-theme-heading);
+    } @else if $quote == soft {
+      padding: 12px 16px;
+      border-left: 4px solid rgba($accent, 0.45);
+      border-radius: 0 $radius $radius 0;
+      background-color: rgba($accent, 0.08);
+      color: inherit;
+    }
+  }
+
+  /* ---------- #{$id}: plain dividers (horizontalRule / divider--line / a bare <hr>) ---------- */
+  #{$root} [data-type='horizontalRule'],
+  #{$root} .divider.divider--line {
+    margin: 28px 0;
+  }
+  #{$root} > hr,
+  #{$root} [data-type='horizontalRule'] > hr,
+  #{$root} .divider.divider--line > hr {
+    display: block;
+    margin: 0 auto;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    opacity: 1;
+    @if $hr == short {
+      flex: 0 0 48px;
+      width: 48px;
+      height: 2px;
+      border-radius: 1px;
+      background: $accent;
+    } @else if $hr == gradient {
+      flex: 1 1 auto;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(
+        90deg,
+        rgba($accent, 0),
+        $accent 30%,
+        $accent2 70%,
+        rgba($accent2, 0)
+      );
+    } @else if $hr == dots {
+      flex: 0 0 48px;
+      width: 48px;
+      height: 6px;
+      background: radial-gradient(circle, rgba($accent, 0.7) 2.5px, transparent 3px)
+        0
+        0 /
+        16px
+        6px
+        repeat-x;
+    } @else if $hr == double {
+      flex: 1 1 auto;
+      box-sizing: content-box;
+      width: 100%;
+      height: 3px;
+      border-top: 1px solid var(--sn-theme-heading);
+      border-bottom: 1px solid var(--sn-theme-heading);
+    } @else if $hr == dashed {
+      flex: 1 1 auto;
+      width: 100%;
+      height: 1px;
+      background: repeating-linear-gradient(90deg, rgba($accent, 0.5) 0 6px, transparent 6px 10px);
+    }
+  }
+  #{$root} > hr {
+    margin: 28px auto;
+  }
+
+  /* ---------- #{$id}: cards and captions ---------- */
+  #{$root}
+    :is(
+      .sn-box--soft,
+      .sn-box--outline,
+      .sn-box--shadow,
+      .sn-box--accent,
+      .sn-box--ticket,
+      .sn-box--dark
+    ) {
+    border-radius: $radius;
+  }
+  #{$root} .image-view__caption {
+    font-size: map.get($t, captionSize) * 1px;
+    color: map.get($t, captionColor);
+    text-align: map.get($t, captionAlign);
+    @if map.get($t, captionItalic) {
+      font-style: italic;
+    }
+  }
+}

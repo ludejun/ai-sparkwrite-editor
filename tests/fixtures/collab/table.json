@@ -1,0 +1,60 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "table",
+      "content": [
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableHeader",
+              "attrs": { "colwidth": [120] },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [{ "type": "text", "text": "名称", "marks": [{ "type": "bold" }] }]
+                }
+              ]
+            },
+            {
+              "type": "tableHeader",
+              "attrs": { "colspan": 2, "colwidth": [80, 90], "align": "center" },
+              "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "合并" }] }]
+            }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "attrs": { "rowspan": 2, "backgroundColor": "#f0f5ff" },
+              "content": [
+                { "type": "paragraph", "content": [{ "type": "text", "text": "跨两行" }] }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "a" }] }]
+            },
+            { "type": "tableCell", "content": [{ "type": "paragraph" }] }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "b" }] }]
+            },
+            {
+              "type": "tableCell",
+              "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "c" }] }]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

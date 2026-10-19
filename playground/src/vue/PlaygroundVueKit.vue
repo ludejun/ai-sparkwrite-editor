@@ -42,7 +42,7 @@ const editor = useEditor({
 <template>
   <RichTextProvider :editor="editor" :dark="dark">
     <div class="rounded-[0.5rem] bg-background shadow outline outline-1">
-      <RichTextKitToolbar />
+      <RichTextKitToolbar overflow="collapse" />
       <EditorContent :editor="editor" />
       <RichTextKitMenus />
     </div>

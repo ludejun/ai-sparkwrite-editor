@@ -47,6 +47,9 @@ const externalPackages = [
   'easydrawer',
   'frimousse',
   'mammoth',
+  // Yjs must be one copy shared with the host app (Y.Doc instanceof checks, the "Yjs was already imported" trap)
+  'yjs',
+  'y-protocols',
 ];
 
 const normalizePath = (id: string) => id.replaceAll('\\', '/');
@@ -68,6 +71,7 @@ export default defineConfig(({ mode }) => {
   const entryFiles = [
     'src/index.ts',
     'src/core.ts',
+    'src/static.ts',
     'src/vue/index.ts',
     'src/locale-bundle.ts',
     'src/locale.ts',

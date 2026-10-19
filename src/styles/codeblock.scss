@@ -94,6 +94,21 @@
   font-style: italic;
 }
 
+/* The kit's injected reset (`.sparkwrite pre { font-size: 1em }`) is more
+   specific than `.shj`, and the node view puts `white-space: pre-wrap` inline
+   on the code element: together they turned the block into body-sized,
+   wrapping code whose lines drifted away from the gutter numbers. The block
+   keeps its own font and scrolls long lines instead, as designed. */
+.sparkwrite .ProseMirror pre.shj {
+  font-family:
+    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  font-size: 13px;
+}
+.ProseMirror pre.shj code,
+.ProseMirror pre.shj code > [data-node-view-content-react] {
+  white-space: pre !important;
+}
+
 /* Code block node view: gutter on the left, code scrolls under the numbers. */
 .richtext-code-block {
   --richtext-code-line-height: 20px;

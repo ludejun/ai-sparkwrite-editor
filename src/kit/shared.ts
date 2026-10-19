@@ -29,6 +29,9 @@ export function buildKit<R extends KitRegistry>(
 ): AnyExtension[] {
   const list: AnyExtension[] = [];
   const seen = new Set<string>();
+  // Collaboration (Yjs) brings its own undo manager and conflicts with UndoRedo.
+  const collaboration = (options as Record<string, unknown> | undefined)?.collaboration;
+  const collaborating = Boolean(collaboration) && typeof collaboration === 'object';
   const push = (extension: AnyExtension) => {
     if (seen.has(extension.name)) return;
     seen.add(extension.name);
@@ -38,6 +41,7 @@ export function buildKit<R extends KitRegistry>(
   for (const [key, entry] of Object.entries(registry)) {
     const option = (options as Record<string, unknown> | undefined)?.[key];
     if (option === false || (option === undefined && entry.optIn)) continue;
+    if (collaborating && key === 'history') continue;
     push(
       option && typeof option === 'object'
         ? entry.extension.configure(option as Record<string, unknown>)
@@ -51,5 +55,10 @@ export function buildKit<R extends KitRegistry>(
 
 /** Names of the extensions registered on an editor, for showing only the controls that apply. */
 export function extensionNames(editor: Editor | null | undefined): Set<string> {
-  return new Set(editor?.extensionManager.extensions.map((extension) => extension.name) ?? []);
+  const names = new Set(
+    editor?.extensionManager.extensions.map((extension) => extension.name) ?? []
+  );
+  // Undo / redo controls work with either history implementation.
+  if (names.has('collaboration')) names.add('undoRedo');
+  return names;
 }

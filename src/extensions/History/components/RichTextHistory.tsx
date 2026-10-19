@@ -11,7 +11,10 @@ import { useButtonProps } from '@/hooks/useButtonProps';
 registerIcons({ Redo2: Redo2Icon, Undo2: Undo2Icon });
 
 export function RichTextUndo() {
-  const buttonProps = useButtonProps(History.name);
+  const historyProps = useButtonProps(History.name);
+  // With Yjs collaboration the `collaboration` extension owns undo / redo.
+  const collaborationProps = useButtonProps('collaboration');
+  const buttonProps = historyProps ?? collaborationProps;
 
   const {
     icon = undefined,
@@ -49,7 +52,10 @@ export function RichTextUndo() {
 }
 
 export function RichTextRedo() {
-  const buttonProps = useButtonProps(History.name);
+  const historyProps = useButtonProps(History.name);
+  // With Yjs collaboration the `collaboration` extension owns undo / redo.
+  const collaborationProps = useButtonProps('collaboration');
+  const buttonProps = historyProps ?? collaborationProps;
 
   const {
     icon = undefined,

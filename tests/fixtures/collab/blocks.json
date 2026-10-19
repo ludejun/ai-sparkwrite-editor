@@ -1,0 +1,51 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "codeBlock",
+      "attrs": { "language": "python" },
+      "content": [{ "type": "text", "text": "def f():\n    return 1  # 注释" }]
+    },
+    { "type": "codeBlock", "content": [{ "type": "text", "text": "no language" }] },
+    {
+      "type": "blockquote",
+      "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "引用" }] }]
+    },
+    {
+      "type": "notice",
+      "attrs": { "type": "warning" },
+      "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "注意" }] }]
+    },
+    { "type": "callout", "attrs": { "type": "tip", "title": "提示", "body": "正文" } },
+    { "type": "divider", "attrs": { "variant": "dashed", "label": "分隔" } },
+    { "type": "divider" },
+    {
+      "type": "details",
+      "attrs": { "open": true },
+      "content": [
+        { "type": "detailsSummary", "content": [{ "type": "text", "text": "摘要" }] },
+        {
+          "type": "detailsContent",
+          "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "内容" }] }]
+        }
+      ]
+    },
+    {
+      "type": "columns",
+      "attrs": { "cols": 2 },
+      "content": [
+        {
+          "type": "column",
+          "attrs": { "index": 0 },
+          "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "左" }] }]
+        },
+        {
+          "type": "column",
+          "attrs": { "index": 1 },
+          "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "右" }] }]
+        }
+      ]
+    },
+    { "type": "paragraph" }
+  ]
+}

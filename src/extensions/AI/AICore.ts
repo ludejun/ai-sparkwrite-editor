@@ -1,8 +1,8 @@
 import { Extension } from '@tiptap/core';
 import { AllSelection, Plugin } from '@tiptap/pm/state';
-import { Decoration, DecorationSet } from '@tiptap/pm/view';
 
 import { markdownToSlice } from './markdown';
+import { aiDecorations, nextAISessionId, nextAIState, sessionAfterApply } from './session';
 import { aiPluginKey, type AIAction, type AISession, type AIState } from './state';
 import { rangeMarkdown } from './writer';
 
@@ -57,6 +57,8 @@ export const AICore = Extension.create<AIOptions>({
       composer: true,
       spaceTrigger: true,
       documentContext: 12000,
+      onComposeResult: undefined,
+      placement: 'inline',
     };
   },
   addCommands() {
@@ -72,7 +74,7 @@ export const AICore = Extension.create<AIOptions>({
           if (dispatch)
             tr.setMeta(aiPluginKey, {
               type: 'session',
-              session: { from: selection.from, to: selection.to, prompt },
+              session: { from: selection.from, to: selection.to, prompt, id: nextAISessionId() },
             } satisfies AIAction);
           return true;
         },
@@ -93,7 +95,10 @@ export const AICore = Extension.create<AIOptions>({
             // blocks become real nodes; anything the schema does not know,
             // including any markup the model may have produced, is dropped.
             tr.replaceRange(range.from, range.to, markdownToSlice(editor, markdown));
-            tr.setMeta(aiPluginKey, { type: 'session', session: null } satisfies AIAction);
+            tr.setMeta(aiPluginKey, {
+              type: 'session',
+              session: sessionAfterApply(range, tr, this.options.placement ?? 'inline'),
+            } satisfies AIAction);
             tr.scrollIntoView();
           }
           return true;
@@ -128,102 +133,29 @@ export const AICore = Extension.create<AIOptions>({
     const editor = this.editor;
     const options = this.options;
     let mount: HTMLElement | null = null;
+    const placement = options.placement ?? 'inline';
     return [
       new Plugin<AIState>({
         key: aiPluginKey,
         state: {
           init: () => ({ session: null, writing: null, composer: false }),
-          apply(tr, previous) {
-            const action = tr.getMeta(aiPluginKey) as AIAction | undefined;
-            let next = previous;
-            if (action?.type === 'session') next = { ...next, session: action.session };
-            else if (action?.type === 'writing') next = { ...next, writing: action.writing };
-            else if (action?.type === 'composer') next = { ...next, composer: action.open };
-
-            if (tr.docChanged) {
-              // A document edit invalidates the preview, including remote
-              // collaborative edits. The span being written moves with the
-              // edit instead, unless the writer itself set it just now.
-              if (action?.type !== 'session') next = { ...next, session: null };
-              if (action?.type !== 'writing' && next.writing) {
-                next = {
-                  ...next,
-                  writing: {
-                    from: tr.mapping.map(next.writing.from, -1),
-                    to: tr.mapping.map(next.writing.to, 1),
-                  },
-                };
-              }
-            }
-            return next;
-          },
+          apply: (tr, previous) => nextAIState(previous, tr, placement),
         },
         props: {
-          decorations(state) {
-            const { session, writing } = aiPluginKey.getState(state) ?? {};
-            const decorations: Decoration[] = [];
-            if (writing) {
-              decorations.push(
-                Decoration.inline(writing.from, writing.to, { class: 'richtext-ai-writing' }),
-                Decoration.widget(
-                  writing.to,
-                  () => {
-                    const caret = document.createElement('span');
-                    caret.className = 'richtext-ai-writing-caret';
-                    caret.setAttribute('aria-hidden', 'true');
-                    return caret;
-                  },
-                  { key: 'ai-writing-caret', side: 1, ignoreSelection: true }
-                )
-              );
-            }
-            if (!session) {
-              return decorations.length
-                ? DecorationSet.create(state.doc, decorations)
-                : DecorationSet.empty;
-            }
-            const $pos = state.doc.resolve(session.to);
-            if (session.from !== session.to) {
-              decorations.push(
-                Decoration.inline(session.from, session.to, {
-                  class: 'richtext-ai-selection',
-                })
-              );
-            } else if ($pos.depth) {
-              decorations.push(
-                Decoration.node($pos.before(), $pos.after(), {
-                  class:
-                    $pos.parent.content.size === 0
-                      ? 'richtext-ai-empty-anchor'
-                      : 'richtext-ai-selection',
-                })
-              );
-            }
-            // A block widget participates in editor layout but is excluded from its
-            // document/HTML/history. Long previews push following content down.
-            decorations.push(
-              Decoration.widget(
-                $pos.depth ? $pos.after() : session.to,
-                () => {
-                  mount = editor.view.dom.ownerDocument.createElement('div');
-                  mount.className = 'richtext-ai-mount';
-                  mount.contentEditable = 'false';
-                  return mount;
-                },
-                {
-                  key: 'ai-panel',
-                  side: -1,
-                  stopEvent: () => true,
-                  ignoreSelection: true,
-                }
-              )
-            );
-            return DecorationSet.create(state.doc, decorations);
-          },
+          decorations: (state) =>
+            aiDecorations(state, placement, () => {
+              mount = editor.view.dom.ownerDocument.createElement('div');
+              mount.className = 'richtext-ai-mount';
+              mount.contentEditable = 'false';
+              return mount;
+            }),
         },
         view(view) {
           let unmount: (() => void) | null = null;
           let current: AIState['session'] = null;
+          const sameSession = (a: AISession | null, b: AISession | null) =>
+            a === b ||
+            (placement === 'external' && !!a && !!b && a.id !== undefined && a.id === b.id);
           function destroy() {
             unmount?.();
             unmount = null;
@@ -233,15 +165,25 @@ export const AICore = Extension.create<AIOptions>({
               ? (aiPluginKey.getState(view.state)?.session ?? null)
               : null;
             if (next === current) return;
+            // External: the same session mapped through an edit (or moved
+            // onto the text it inserted) keeps its panel and conversation.
+            if (sameSession(next, current)) {
+              current = next;
+              return;
+            }
             current = next;
             destroy();
-            if (!next || !mount || !options.mountPanel) return;
-            const target = mount;
+            if (!next || !options.mountPanel) return;
+            // External: the panel is rendered by the host, outside the
+            // document; it gets a detached element it is free to ignore.
+            const target =
+              placement === 'external' ? editor.view.dom.ownerDocument.createElement('div') : mount;
+            if (!target) return;
             const session = next;
             // Multi-block selections go to the model as Markdown, so a table
             // or a list keeps its shape; the panel mounts once that is ready.
             void rangeMarkdown(editor, session).then((selectedText) => {
-              if (current !== session || editor.isDestroyed) return;
+              if (!sameSession(current, session) || editor.isDestroyed) return;
               mountPanel(target, session, selectedText);
             });
           }

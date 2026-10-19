@@ -1,0 +1,202 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "heading",
+      "attrs": {
+        "indent": 0,
+        "level": 1
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "标题一"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "center",
+        "indent": 0,
+        "level": 3
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Centered h3"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "indent": 0
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "plain "
+        },
+        {
+          "type": "text",
+          "text": "bold",
+          "marks": [
+            {
+              "type": "bold",
+              "attrs": {}
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": " then plain, "
+        },
+        {
+          "type": "text",
+          "text": "bold+italic",
+          "marks": [
+            {
+              "type": "bold",
+              "attrs": {}
+            },
+            {
+              "type": "italic",
+              "attrs": {}
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": " u",
+          "marks": [
+            {
+              "type": "underline",
+              "attrs": {}
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": " s",
+          "marks": [
+            {
+              "type": "strike",
+              "attrs": {}
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": "code()",
+          "marks": [
+            {
+              "type": "code",
+              "attrs": {}
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": " 链接",
+          "marks": [
+            {
+              "type": "link",
+              "attrs": {
+                "href": "https://example.com",
+                "target": "_blank",
+                "rel": "noopener noreferrer nofollow",
+                "class": null,
+                "title": null
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": " hl",
+          "marks": [
+            {
+              "type": "highlight",
+              "attrs": {
+                "color": "#fde68a"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": " red 18px",
+          "marks": [
+            {
+              "type": "textStyle",
+              "attrs": {
+                "color": "#f5222d",
+                "fontFamily": null,
+                "fontSize": "18px",
+                "lineHeight": null
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": "x"
+        },
+        {
+          "type": "text",
+          "text": "2",
+          "marks": [
+            {
+              "type": "superscript",
+              "attrs": {}
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": "H"
+        },
+        {
+          "type": "text",
+          "text": "2",
+          "marks": [
+            {
+              "type": "subscript",
+              "attrs": {}
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": "O"
+        },
+        {
+          "type": "hardBreak"
+        },
+        {
+          "type": "text",
+          "text": "第二行 😀 emoji"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "indent": 2
+      }
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "indent": 0
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "end"
+        }
+      ]
+    }
+  ]
+}
