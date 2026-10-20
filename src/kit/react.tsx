@@ -324,6 +324,13 @@ export interface RichTextKitToolbarProps {
   className?: string;
   /** Extra controls, placed before the overflow panel. */
   children?: ReactNode;
+  /**
+   * Replaces the built-in AI control (the composer trigger) in the first slot
+   * of the row — for a host that answers AI elsewhere, such as a side panel.
+   * Like the built-in one it never collapses; it shows whether or not the AI
+   * extension is registered.
+   */
+  ai?: ReactNode;
   /** The "More tools" panel with the less frequent controls. Default true. */
   more?: boolean;
   /**
@@ -374,6 +381,7 @@ interface RowGroup extends ToolbarGroupSpec {
 export function RichTextKitToolbar({
   className,
   children,
+  ai,
   more = true,
   pinnable = true,
   storageKey = DEFAULT_PINS_KEY,
@@ -591,7 +599,11 @@ export function RichTextKitToolbar({
     {
       id: 'ai',
       priority: null,
-      entries: [{ key: 'ai', name: 'ai', label: t('editor.ai.title'), node: <RichTextAI /> }],
+      entries: [
+        ai
+          ? { key: 'ai', name: '', label: t('editor.ai.title'), node: ai }
+          : { key: 'ai', name: 'ai', label: t('editor.ai.title'), node: <RichTextAI /> },
+      ],
     },
     {
       id: 'history',
@@ -748,7 +760,10 @@ export function RichTextKitToolbar({
     ...row
       .map((group) => ({
         ...group,
-        entries: group.entries.filter((entry) => on(entry.name) && !pins.includes(entry.key)),
+        // a host control (`ai`) has no extension name: it is always shown
+        entries: group.entries.filter(
+          (entry) => (entry.name === '' || on(entry.name)) && !pins.includes(entry.key)
+        ),
       }))
       .filter((group) => group.entries.length),
     ...pinned.map(
