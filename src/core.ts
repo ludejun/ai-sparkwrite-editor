@@ -42,6 +42,27 @@ export type {
   DividerVariant,
   DividerVariantOption,
 } from '@/extensions/Divider/Divider';
+export {
+  StyledBlocksCore as StyledBlocks,
+  BlockStyles,
+  CardCore as Card,
+  HEADING_STYLES,
+  QUOTE_STYLES,
+  CARD_STYLES,
+  STYLED_TYPES,
+  cleanVariant,
+} from '@/extensions/StyledBlocks/StyledBlocks';
+export type {
+  StyledBlocksOptions,
+  CardOptions,
+  HeadingStyle,
+  QuoteStyle,
+  CardStyle,
+} from '@/extensions/StyledBlocks/StyledBlocks';
+export {
+  ORNAMENT_DIVIDER_VARIANTS,
+  ARTICLE_DIVIDER_VARIANTS,
+} from '@/extensions/StyledBlocks/ornaments';
 export { Details, DetailsContent, DetailsSummary } from '@/extensions/Details/Details';
 export { Column, ColumnNode, MultipleColumnNode } from '@/extensions/Column/Column';
 export type { DetailsOptions } from '@/extensions/Details/Details';
@@ -201,3 +222,17 @@ export { ExportPdf } from '@/extensions/ExportPdf/ExportPdf';
 export { ExportWord } from '@/extensions/ExportWord/ExportWord';
 export { ImportWord } from '@/extensions/ImportWord/ImportWord';
 export { CodeView } from '@/extensions/CodeView/CodeView';
+
+// Real-time co-editing (Yjs): the extensions plus a transport-agnostic y-protocols provider
+export {
+  Collaboration,
+  CollaborationCaret,
+  renderCollaborationCaret,
+} from '@/extensions/Collaboration/Collaboration';
+export type {
+  CollaborationOptions,
+  CollaborationCaretOptions,
+  CollaborationUser,
+} from '@/extensions/Collaboration/Collaboration';
+export { YSyncProvider, collaborationKitOptions } from '@/extensions/Collaboration/provider';
+export type { YSyncStatus, YSyncProviderEvents } from '@/extensions/Collaboration/provider';

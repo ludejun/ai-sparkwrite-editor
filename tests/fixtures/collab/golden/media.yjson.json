@@ -1,0 +1,108 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "attrs": {
+        "indent": 0
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "图："
+        },
+        {
+          "type": "image",
+          "attrs": {
+            "src": "/api/v1/assets/abc123/raw",
+            "alt": "图",
+            "width": 320,
+            "flipX": true,
+            "flipY": false,
+            "rotate": 90,
+            "align": "left",
+            "inline": false
+          }
+        },
+        {
+          "type": "text",
+          "text": " 公式 "
+        },
+        {
+          "type": "katex",
+          "attrs": {
+            "text": "E=mc^2",
+            "macros": ""
+          }
+        }
+      ]
+    },
+    {
+      "type": "imageBlock",
+      "attrs": {
+        "src": "/api/v1/assets/def456/raw",
+        "alt": "",
+        "width": 480,
+        "flipX": false,
+        "flipY": false,
+        "rotate": 0,
+        "caption": "说明",
+        "align": "center",
+        "inline": false
+      }
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "indent": 0
+      },
+      "content": [
+        {
+          "type": "katex",
+          "attrs": {
+            "text": "\\int_0^1 x\\,dx",
+            "macros": ""
+          }
+        }
+      ]
+    },
+    {
+      "type": "mermaid",
+      "attrs": {
+        "src": "data:image/svg+xml;base64,AAA",
+        "width": 400,
+        "align": "center"
+      }
+    },
+    {
+      "type": "video",
+      "attrs": {
+        "src": "https://example.com/v.mp4",
+        "width": 480,
+        "frameborder": 0,
+        "allowfullscreen": true,
+        "align": "center"
+      }
+    },
+    {
+      "type": "iframe",
+      "attrs": {
+        "width": 600,
+        "height": 200,
+        "src": "https://example.com",
+        "defaultShowPicker": false,
+        "frameborder": 0
+      }
+    },
+    {
+      "type": "attachment",
+      "attrs": {
+        "fileName": "a.pdf",
+        "fileSize": 1024,
+        "fileExt": "pdf",
+        "url": "/files/a.pdf",
+        "hasTrigger": false
+      }
+    }
+  ]
+}

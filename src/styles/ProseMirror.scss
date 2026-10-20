@@ -301,4 +301,7 @@
 .sparkwrite .ProseMirror table {
   border-collapse: separate;
   border-spacing: 0;
+  /* The same reset also sets `border-color: inherit` on tables, which painted
+     the outer frame in the text colour while the inner lines stayed light. */
+  @apply richtext-border-black/10 dark:richtext-border-white/20;
 }

@@ -1,0 +1,204 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": null,
+        "indent": 0,
+        "id": null,
+        "data-toc-id": null,
+        "variant": null,
+        "level": 1
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "标题一"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "center",
+        "indent": 0,
+        "id": null,
+        "data-toc-id": null,
+        "variant": null,
+        "level": 3
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Centered h3"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null,
+        "indent": 0
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "plain "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "bold"
+        },
+        {
+          "type": "text",
+          "text": " then plain, "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            },
+            {
+              "type": "italic"
+            }
+          ],
+          "text": "bold+italic"
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "underline"
+            }
+          ],
+          "text": " u"
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "strike"
+            }
+          ],
+          "text": " s"
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "code()"
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "link",
+              "attrs": {
+                "href": "https://example.com",
+                "target": "_blank",
+                "rel": "noopener noreferrer nofollow",
+                "class": null,
+                "title": null
+              }
+            }
+          ],
+          "text": " 链接"
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "highlight",
+              "attrs": {
+                "color": "#fde68a"
+              }
+            }
+          ],
+          "text": " hl"
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "textStyle",
+              "attrs": {
+                "color": "#f5222d",
+                "fontFamily": null,
+                "fontSize": "18px",
+                "lineHeight": null
+              }
+            }
+          ],
+          "text": " red 18px"
+        },
+        {
+          "type": "text",
+          "text": "x"
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "superscript"
+            }
+          ],
+          "text": "2"
+        },
+        {
+          "type": "text",
+          "text": "H"
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "subscript"
+            }
+          ],
+          "text": "2"
+        },
+        {
+          "type": "text",
+          "text": "O"
+        },
+        {
+          "type": "hardBreak"
+        },
+        {
+          "type": "text",
+          "text": "第二行 😀 emoji"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null,
+        "indent": 2
+      }
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null,
+        "indent": 0
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "end"
+        }
+      ]
+    }
+  ]
+}

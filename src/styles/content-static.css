@@ -1,0 +1,180 @@
+/* ---- static node views (renderStaticHTML): what the editor draws with interactive DOM ---- */
+
+/* Code block: the hover toolbar shows the language and a copy button (the editor's picker /
+   copy / delete, minus editing). The copy button stays hidden until a script wires it. */
+.sn-article .richtext-code-block {
+  margin: 0.5rem 0;
+}
+.sn-article .richtext-code-block > pre.shj {
+  margin: 0;
+}
+.sn-article .richtext-code-block__toolbar {
+  pointer-events: auto;
+}
+.sn-article .richtext-code-block:focus-within .richtext-code-block__toolbar {
+  opacity: 1;
+}
+@media (hover: none) {
+  .sn-article .richtext-code-block__toolbar {
+    opacity: 1;
+  }
+}
+.sn-article .richtext-code-block__lang {
+  height: 24px;
+  padding: 0 6px;
+  font-family: var(--richtext-font-sans, ui-sans-serif, system-ui, sans-serif);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: 0.01em;
+  color: var(--shj-numbers);
+  user-select: none;
+}
+.sn-article .richtext-code-block__toolbar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.sn-article .richtext-code-block__toolbar button[hidden] {
+  display: none;
+}
+.sn-article .richtext-code-block__copy svg + svg,
+.sn-article .richtext-code-block__copy[data-copied] svg:first-child {
+  display: none;
+}
+.sn-article .richtext-code-block__copy[data-copied] svg + svg {
+  display: block;
+}
+
+/* Callout: in the editor the element reset (`border-width: 0` on every element) wins over the box's
+   `richtext-border` utility, so the callout shows its tint without a frame. Same here, whatever other copy of
+   the utilities the page loads. */
+.sn-article .callout .richtext-border {
+  border-width: 0;
+}
+
+/* Images: block pictures are <figure> here (a <div> in the editor). */
+.sn-article figure.image-view {
+  margin: 0;
+}
+.sn-article .image-view__caption {
+  display: block;
+}
+
+/* Task items: the checkbox is read-only (no pointer, out of the tab order) but keeps its checked look. */
+.sn-article ul[data-type='taskList'] li > label input[type='checkbox'] {
+  pointer-events: none;
+}
+
+/* Details: a native <details>, so it opens without a script. The arrow takes the place of
+   the editor's toggle button. */
+.sn-article details.details {
+  display: block;
+  position: relative;
+  padding-left: 36px;
+}
+.sn-article details.details > summary.details-summary {
+  cursor: pointer;
+}
+.sn-article details.details > summary.details-summary::after {
+  content: '';
+  position: absolute;
+  top: 17px;
+  left: 17px;
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid hsl(var(--muted-foreground, 240 3% 55%));
+  border-bottom: 2px solid hsl(var(--muted-foreground, 240 3% 55%));
+  transform: rotate(-45deg);
+  transition: transform 0.15s ease;
+}
+.sn-article details.details[open] > summary.details-summary::after {
+  transform: rotate(45deg);
+}
+.sn-article details.details > summary.details-summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Formulas without KaTeX: the TeX source, quietly. */
+.sn-article .katex-node--source {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.875em;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Embeds (iframe node): the editor's resizable frame without handles. */
+.sn-article .sn-embed {
+  margin: 12px 0;
+  max-width: 100%;
+}
+.sn-article .sn-embed .render-wrapper {
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 4px);
+  line-height: 0;
+}
+.sn-article .sn-embed iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.sn-article .sn-video {
+  margin: 12px 0;
+}
+.sn-article .sn-video video {
+  display: inline-block;
+  border-radius: calc(var(--radius) - 4px);
+}
+
+/* Attachment: a file card. */
+.sn-article .sn-attachment {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+  padding: 10px 12px;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  color: inherit;
+  text-decoration: none;
+}
+.sn-article .sn-attachment__icon svg {
+  display: block;
+  width: 28px;
+  height: 28px;
+}
+.sn-article .sn-attachment__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sn-article .sn-attachment__size {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875em;
+}
+
+/* Table-of-contents block. */
+.sn-article .sn-toc {
+  margin: 1em 0;
+  padding: 12px 16px;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+}
+.sn-article .sn-toc ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sn-article .sn-toc .toc-level-3 {
+  padding-left: 1em;
+}
+.sn-article .sn-toc .toc-level-4,
+.sn-article .sn-toc .toc-level-5,
+.sn-article .sn-toc .toc-level-6 {
+  padding-left: 2em;
+}

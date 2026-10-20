@@ -1,0 +1,45 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "heading",
+      "attrs": { "level": 2, "variant": "pill" },
+      "content": [{ "type": "text", "text": "样式标题" }]
+    },
+    {
+      "type": "blockquote",
+      "attrs": { "variant": "paper" },
+      "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "纸张引用" }] }]
+    },
+    {
+      "type": "card",
+      "attrs": { "variant": "outline", "label": "Q&A" },
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            { "type": "text", "text": "卡片里的" },
+            {
+              "type": "text",
+              "text": "重点",
+              "marks": [
+                { "type": "bold" },
+                { "type": "textStyle", "attrs": { "color": "#1677ff" } }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "bulletList",
+          "content": [
+            {
+              "type": "listItem",
+              "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "条目" }] }]
+            }
+          ]
+        }
+      ]
+    },
+    { "type": "divider", "attrs": { "variant": "ornament", "label": "辰记" } }
+  ]
+}

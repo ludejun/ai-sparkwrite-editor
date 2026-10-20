@@ -92,14 +92,14 @@ Kit 只是省事，不是锁定：同一个入口也单独导出每个扩展和�
 - **`false`**——去掉，工具栏按钮和菜单一并消失；
 - **对象**——包含并传给该扩展的 `.configure()`；类型就是该扩展自己的选项（`ai: { endpoint }`、`codeBlock: { defaultLanguage: 'ts' }`、`heading: { levels: [1, 2, 3] }`）。对需显式开启的功能，传对象即开启，不需要配置时传 `{}` 即可。
 
-| 分组     | 键（默认开启）                                                                                                                                                                                                            | 需显式开启（传 `{ … }`）                                                                                                                                                 |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 文档     | `document`、`paragraph`、`text`、`hardBreak`、`dropcursor`、`gapcursor`、`history`                                                                                                                                        | `placeholder`（`{ placeholder: '…' }`）                                                                                                                                  |
+| 分组     | 键（默认开启）                                                                                                                                                                                                                                                         | 需显式开启（传 `{ … }`）                                                                                                                                                 |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 文档     | `document`、`paragraph`、`text`、`hardBreak`、`dropcursor`、`gapcursor`、`history`                                                                                                                                                                                     | `placeholder`（`{ placeholder: '…' }`）                                                                                                                                  |
 | 文本样式 | `bold`、`italic`、`underline`、`strike`、`code`、`moreMark`（上下标）、`textStyle`（颜色、字体、字号所依赖的标记）、`color`、`highlight`、`fontFamily`、`fontSize`、`lineHeight`、`textAlign`、`textDirection`、`indent`、`clear`、`formatPainter`（仅 React）、`link` | —                                                                                                                                                                        |
-| 块       | `heading`、`bulletList`、`orderedList`、`taskList`、`blockquote`、`table`、`divider`、`details`、`codeBlock`、`callout`、`notice`、`tableOfContents`、`column`（React 默认开启；Vue 需显式开启）                                    | `horizontalRule`（分割线已取代它）                                                                                                                                       |
-| 媒体嵌入 | `image`、`video`、`iframe`、`attachment`、`katex`、`mermaid`                                                                                                                                                              | `imageGif`（`{ GIPHY_API_KEY }`）、`emoji`、`excalidraw`、`drawer`、`twitter`、`mention`（`{ suggestion }`）、`shortMessage`（`{ messages }`）——除 `imageGif` 外仅 React |
-| 行为     | `slashCommand`（仅 React）、`searchAndReplace`、`richPaste`、`markdownPaste`、`exportMarkdown`、`exportWord`、`importWord`、`exportPdf`、`codeView`                                                                       | `recorder`                                                                                                                                                               |
-| AI       | `ai`（[选项](/zh/extensions/AI/#选项)；记得设置 `endpoint`）、`aiAutocomplete`                                                                                                                                            | —                                                                                                                                                                        |
+| 块       | `heading`、`bulletList`、`orderedList`、`taskList`、`blockquote`、`table`、`divider`、`details`、`codeBlock`、`callout`、`notice`、`tableOfContents`、`column`（React 默认开启；Vue 需显式开启）                                                                       | `horizontalRule`（分割线已取代它）                                                                                                                                       |
+| 媒体嵌入 | `image`、`video`、`iframe`、`attachment`、`katex`、`mermaid`                                                                                                                                                                                                           | `imageGif`（`{ GIPHY_API_KEY }`）、`emoji`、`excalidraw`、`drawer`、`twitter`、`mention`（`{ suggestion }`）、`shortMessage`（`{ messages }`）——除 `imageGif` 外仅 React |
+| 行为     | `slashCommand`（仅 React）、`searchAndReplace`、`richPaste`、`markdownPaste`、`exportMarkdown`、`exportWord`、`importWord`、`exportPdf`、`codeView`                                                                                                                    | `recorder`                                                                                                                                                               |
+| AI       | `ai`（[选项](/zh/extensions/AI/#选项)；记得设置 `endpoint`）、`aiAutocomplete`                                                                                                                                                                                         | —                                                                                                                                                                        |
 
 列表会自动带上 `ListItem`，`column` 会把文档 schema 放宽为 `(block|columns)+`，即使两个键共用同一个伴随扩展，每个扩展也只注册一次。`RichTextKitOptions` 类型已导出，方便把配置放在别处维护。
 
@@ -115,10 +115,34 @@ Kit 只是省事，不是锁定：同一个入口也单独导出每个扩展和�
 | `pinnable`    | `true`                                  | 允许把面板里的行拖到工具栏，以及拖回去                 |
 | `defaultPins` | `[]`                                    | 用户改动前默认常驻的面板项，如 `['fontSize', 'katex']` |
 | `storageKey`  | `ai-sparkwrite-editor:kit-toolbar-pins` | 常驻项的存储键                                         |
+| `overflow`    | `'wrap'`                                | `'collapse'` 让工具栏始终一行，见[溢出折叠](#溢出折叠) |
 | `children`    | —                                       | 额外控件，放在内置分组之后（React）；Vue 用默认插槽    |
 | `className`   | —                                       | React：工具栏的额外 class                              |
 
 想换顺序或只挑几个控件，就用控件自己组合，见[工具栏](/zh/guide/toolbar)。
+
+### 溢出折叠
+
+默认情况下，工具栏比控件窄时会换行。放在窄列里（侧栏、分屏）时，传 `overflow='collapse'` 可以让它**始终保持一行**：放不下的分组整组收进面板顶部的**更多工具**分组，在那里是普通的面板行——带文字标签、可直接使用，开启 `pinnable` 时也能拖到工具栏上常驻。
+
+```tsx
+<RichTextKitToolbar overflow='collapse' />
+```
+
+```vue
+<RichTextKitToolbar overflow="collapse" />
+```
+
+分组按“最不常用先走”的顺序离开工具栏，宽度够了立刻回来：
+
+1. 常驻（pin）的控件（后 pin 的先走）
+2. 颜色、高亮、清除格式
+3. 对齐
+4. 字体
+5. 链接、图片、表格、代码块
+6. 撤销、重做
+
+AI、段落样式、粗体/斜体/下划线/删除线、列表永不折叠；“更多”触发按钮永远在最右侧——此模式下即使 `more={false}` 也会显示。宽度用 `ResizeObserver` 监听；每个分组只测量一次（宽度变化时再测，比如网页字体加载完成），所以拖动窗口不会让控件重新渲染。根元素带 `data-overflow="collapse"` 和 `data-collapsed="colors align …"`，列出当前收进面板的分组 id（`history`、`font`、`colors`、`align`、`insert`、`pin:<key>`），方便样式和测试断言。
 
 ## 菜单
 

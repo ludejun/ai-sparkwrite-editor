@@ -22,6 +22,7 @@ export {
   markdownToSlice,
 } from './markdown';
 export { aiPluginKey } from './state';
+export type { AIPlacement } from './session';
 export type { AIState, AISession, AIWriting } from './state';
 export { AICore, DEFAULT_AI_SYSTEM_PROMPT } from './AICore';
 export {

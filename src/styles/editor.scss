@@ -381,6 +381,24 @@ div[data-twitter] > div {
   align-items: center;
   margin-left: auto;
 }
+/* Groups of the row are wrapped for measuring; in wrap mode the wrapper is invisible to layout. */
+.richtext-kit-toolbar__group {
+  display: contents;
+}
+/* overflow='collapse': one line, never wrapping; groups the row cannot hold move into the panel,
+   which must not be clipped. Each group is a rigid unit so its width can be measured. */
+.richtext-kit-toolbar.richtext-kit-toolbar--collapse {
+  flex-wrap: nowrap;
+  overflow: visible;
+}
+.richtext-kit-toolbar--collapse > * {
+  flex-shrink: 0;
+}
+.richtext-kit-toolbar--collapse .richtext-kit-toolbar__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
 
 /* Drag-to-pin between the kit toolbar and its More panel. */
 .richtext-kit-toolbar--drop {

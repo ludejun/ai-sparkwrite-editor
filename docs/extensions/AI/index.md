@@ -104,7 +104,7 @@ The engine behind the dock is exported and framework-free:
 
 ```ts
 import { writeWithAI } from 'ai-sparkwrite-editor';
- // or 'ai-sparkwrite-editor/core'
+// or 'ai-sparkwrite-editor/core'
 
 const result = await writeWithAI(editor, {
   prompt: 'Turn the meeting notes into a table of decisions.',
@@ -117,6 +117,22 @@ result.keep(); // or result.discard() to put the original back
 ```
 
 Document-level targets (`cursor`, `start`, `end`) send the document as Markdown context, trimmed to `documentContext` characters (default 12 000; `0` sends none). `selection` and `document` send the affected text itself — as Markdown when it spans more than one block, so structure survives a rewrite.
+
+### Taking a chip's answer somewhere else
+
+Sometimes a preset's answer belongs outside the document: "Suggest a title" should fill your app's title field, not prepend an `h1`. The `onComposeResult` option is called after a chip has finished writing, with the chip's `key`, the answer as Markdown, where it landed and the `writeWithAI` handle. Return `true` and the composer discards what it just inserted (the document is back to how it was) and clears the prompt; return nothing and the usual Keep / Undo / Retry flow follows. Free-form prompts and follow-up refinements never call it.
+
+```ts
+AI.configure({
+  endpoint: '/api/ai',
+  onComposeResult: ({ action, markdown }) => {
+    if (action === 'editor.ai.compose.title.suggest') {
+      setTitle(markdown.replace(/^#+\s*/, '').trim());
+      return true; // handled: the editor takes the heading back out
+    }
+  },
+});
+```
 
 ## Ghost-text autocomplete
 
@@ -225,7 +241,9 @@ AI.configure({
 | `stream`                                       | `true`                       | Ask for server-sent events; `false` waits for a JSON answer                                                                                                                                                   |
 | `spaceTrigger`                                 | `true`                       | Space on an empty line opens Ask AI                                                                                                                                                                           |
 | `documentContext`                              | `12000`                      | Characters of the document sent with document-level prompts                                                                                                                                                   |
+| `placement`                                    | `'inline'`                   | `'external'`: the Ask-AI panel is not inserted into the document; your `mountPanel` renders it elsewhere (side bar, drawer) and the selection range follows edits                                             |
 | `serializeDocument`                            | the editor's Markdown export | `(editor, range) => string`: how a span is turned into text for the model. Multi-block spans and the whole document go as Markdown so tables, lists and code keep their shape; override to redact or reformat |
+| `onComposeResult`                              | —                            | `({ action, markdown, target, editor, result }) => boolean \| void`: called after a composer chip finishes; return `true` to take the answer over and have the editor discard what it inserted                |
 | `translateLanguages`                           | `[]`                         | Fixed Translate targets; empty means the browser language                                                                                                                                                     |
 | `enableImageInput`                             | `true`                       | Attach images (the model has to accept them)                                                                                                                                                                  |
 | `enableFileInput`                              | `true`                       | Attach text files, inlined into the prompt                                                                                                                                                                    |

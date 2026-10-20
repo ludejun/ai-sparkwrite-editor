@@ -62,7 +62,8 @@ export function KitEditor({
   return (
     <RichTextProvider editor={editor} dark={dark}>
       <div className='rounded-[0.5rem] bg-background shadow outline outline-1'>
-        <RichTextKitToolbar />
+        {/* One line whatever the width: narrow the window to see groups move into "More tools". */}
+        <RichTextKitToolbar overflow='collapse' />
         <EditorContent editor={editor} />
         <RichTextKitMenus composer={{ defaultOpen: shot }} />
       </div>

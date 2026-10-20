@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
 
 import { ActionButton } from '@/components/ActionButton';
 import { cn } from '@/lib/utils';
@@ -15,20 +15,23 @@ export interface RichTextToolbarProps extends React.HTMLAttributes<HTMLDivElemen
 }
 
 /** The bar itself: wraps, pads, and separates itself from the document. */
-export function RichTextToolbar({ children, className, ...props }: RichTextToolbarProps) {
-  return (
-    <div
-      className={cn(
-        'richtext-flex richtext-flex-wrap richtext-items-center richtext-gap-0.5 richtext-border-0 richtext-border-b richtext-border-solid richtext-border-border richtext-bg-background richtext-px-2 richtext-py-1.5',
-        className
-      )}
-      role='toolbar'
-      {...props}
-    >
-      {children}
-    </div>
-  );
-}
+export const RichTextToolbar = forwardRef<HTMLDivElement, RichTextToolbarProps>(
+  function RichTextToolbar({ children, className, ...props }, ref) {
+    return (
+      <div
+        className={cn(
+          'richtext-flex richtext-flex-wrap richtext-items-center richtext-gap-0.5 richtext-border-0 richtext-border-b richtext-border-solid richtext-border-border richtext-bg-background richtext-px-2 richtext-py-1.5',
+          className
+        )}
+        ref={ref}
+        role='toolbar'
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  }
+);
 
 /** A thin vertical line between groups of controls. */
 export function RichTextToolbarDivider({ className }: { className?: string }) {

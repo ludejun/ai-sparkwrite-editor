@@ -343,9 +343,6 @@ importers:
       unplugin-dts:
         specifier: ^1.1.0
         version: 1.1.0(rolldown@1.2.9)(typescript@5.9.3)(vite@8.3.0)
-      verify-commit-msg:
-        specifier: ^0.1.0
-        version: 0.1.0
       vite:
         specifier: ^8.3.0
         version: 8.3.0(@types/node@24.13.3)(sass@1.102.0)
@@ -8436,11 +8433,6 @@ packages:
     resolution: {integrity: sha512-xZe/16rV4aa+HGSOCiY2YeLT1OybRLrrkL/Rqaq7p7GMVXjFh+6wN4oMYgjFmnSnhY8t6Xpdl2l9qmnHYuMHwQ==}
     hasBin: true
     dev: false
-
-  /verify-commit-msg@0.1.0:
-    resolution: {integrity: sha512-qX7bWalRTHr8zgGbYQ9Q/NMclF7Qvm0dkdagLhIVk8sRO+9aJ4leJdJchXfQv5CfpOI20ViCbKOaDhxiGbQi8g==}
-    hasBin: true
-    dev: true
 
   /vfile-message@4.0.3:
     resolution: {integrity: sha512-QTHzsGd1EhbZs4AsQ20JX1rC3cOlt/IWJruk893DfLRr57lcnOeMaWG4K0JrRta4mIJZKth2Au3mM3u03/JWKw==}

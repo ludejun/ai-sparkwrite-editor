@@ -51,7 +51,7 @@ not impose a hardware-dependent timing threshold.
 # AI extension checks
 
 ```sh
-pnpm exec esno --test tests/ai-client.test.ts
+pnpm exec esno --test tests/ai-client.test.ts tests/ai-placement.test.ts
 pnpm exec vite --config tests/vite.config.ts
 ```
 

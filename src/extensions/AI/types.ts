@@ -1,3 +1,4 @@
+import type { WriteWithAIResult } from './writer';
 import type { Editor, Range } from '@tiptap/core';
 
 export type AIProtocol = 'openai' | 'anthropic';
@@ -135,6 +136,33 @@ export interface AIOptions {
    * for document-level actions.
    */
   serializeDocument?: (editor: Editor, range: Range) => string | Promise<string>;
+  /**
+   * Where the Ask-AI panel lives. `inline` (the default) mounts it as a block
+   * under the selection, inside the document flow. `external` inserts
+   * nothing into the document: `mountPanel` receives a detached element and
+   * the host renders the panel wherever it likes (a side bar, a drawer). The
+   * selection stays highlighted and its range follows edits, so the panel
+   * can stay open while the user keeps writing; `applyAI` keeps the session
+   * on the text it inserted. Use it with your own `mountPanel`.
+   */
+  placement?: 'inline' | 'external';
+  /**
+   * Called when a composer chip (one of `AI_COMPOSER_ACTIONS`, or your own)
+   * has finished writing: `action` is the chip's `key`, `markdown` the
+   * answer, `target` where it landed, `result` the `writeWithAI` handle.
+   * Return `true` to take the answer over — the editor then discards what it
+   * just inserted and clears the prompt, so a "Suggest a title" can go to
+   * your own title field instead of the document. Anything else keeps the
+   * default Keep / Undo / Retry flow. Not called for free-form prompts or
+   * follow-up refinements.
+   */
+  onComposeResult?: (ctx: {
+    action: string;
+    markdown: string;
+    target: AIWriteTarget;
+    editor: Editor;
+    result: WriteWithAIResult;
+  }) => boolean | void | Promise<boolean | void>;
 }
 
 export interface AIResultContext {

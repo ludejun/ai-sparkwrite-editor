@@ -105,6 +105,8 @@ export function RichTextAIComposer({
     prompt: string;
     target: AIWriteTarget;
     attachments: AIAttachment[];
+    /** The composer action the request came from, when it came from a chip. */
+    actionKey?: string;
   } | null>(null);
   // Images and text files go with the prompt, like in the AI panel: picked,
   // dropped onto the box or pasted into the prompt.
@@ -169,7 +171,8 @@ export function RichTextAIComposer({
     instruction: string,
     where: AIWriteTarget,
     refineFrom?: WriteWithAIResult,
-    files: AIAttachment[] = attachments
+    files: AIAttachment[] = attachments,
+    actionKey?: string
   ) {
     if (busy || !instruction.trim()) return;
     // A refinement or retry rewrites the same span, so the previous answer
@@ -191,7 +194,30 @@ export function RichTextAIComposer({
         signal: active.signal,
       });
       if (!refineFrom)
-        lastRequest.current = { prompt: instruction, target: where, attachments: files };
+        lastRequest.current = {
+          prompt: instruction,
+          target: where,
+          attachments: files,
+          actionKey,
+        };
+      // A chip's answer is offered to the host first: `true` means it took
+      // the answer somewhere else (a title field, say), so the document gets
+      // its original content back and nothing is left to keep or undo.
+      if (actionKey) {
+        const handled = await aiOptionsOf(editor)?.onComposeResult?.({
+          action: actionKey,
+          markdown: next.markdown,
+          target: where,
+          editor,
+          result: next,
+        });
+        if (handled === true) {
+          next.discard();
+          setPrompt('');
+          setAttachments([]);
+          return;
+        }
+      }
       setResult(next);
       setPrompt('');
       setAttachments([]);
@@ -300,7 +326,8 @@ export function RichTextAIComposer({
               type='button'
               onClick={() => {
                 const last = lastRequest.current;
-                if (last) void run(last.prompt, last.target, result, last.attachments);
+                if (last)
+                  void run(last.prompt, last.target, result, last.attachments, last.actionKey);
               }}
             >
               <RotateCcw size={15} /> {t('editor.ai.compose.retry')}
@@ -323,7 +350,15 @@ export function RichTextAIComposer({
                     tabIndex={hidden ? -1 : undefined}
                     title={composerPrompt(action)}
                     disabled={!state.editable}
-                    onClick={() => void run(composerPrompt(action), action.target)}
+                    onClick={() =>
+                      void run(
+                        composerPrompt(action),
+                        action.target,
+                        undefined,
+                        attachments,
+                        action.key
+                      )
+                    }
                   >
                     {Icon ? <Icon size={14} /> : null}
                     {t(action.key)}
@@ -358,7 +393,13 @@ export function RichTextAIComposer({
                           title={composerPrompt(action)}
                           onClick={() => {
                             setMoreOpen(false);
-                            void run(composerPrompt(action), action.target);
+                            void run(
+                              composerPrompt(action),
+                              action.target,
+                              undefined,
+                              attachments,
+                              action.key
+                            );
                           }}
                         >
                           {Icon ? <Icon size={14} /> : null}

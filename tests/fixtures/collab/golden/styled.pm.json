@@ -1,0 +1,114 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": null,
+        "indent": 0,
+        "id": null,
+        "data-toc-id": null,
+        "variant": "pill",
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "样式标题"
+        }
+      ]
+    },
+    {
+      "type": "blockquote",
+      "attrs": {
+        "indent": 0,
+        "variant": "paper"
+      },
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null,
+            "indent": 0
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "纸张引用"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "card",
+      "attrs": {
+        "variant": "outline",
+        "label": "Q&A"
+      },
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null,
+            "indent": 0
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "卡片里的"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "textStyle",
+                  "attrs": {
+                    "color": "#1677ff",
+                    "fontFamily": null,
+                    "fontSize": null,
+                    "lineHeight": null
+                  }
+                },
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "重点"
+            }
+          ]
+        },
+        {
+          "type": "bulletList",
+          "content": [
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null,
+                    "indent": 0
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "条目"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "divider",
+      "attrs": {
+        "variant": "ornament",
+        "label": "辰记"
+      }
+    }
+  ]
+}

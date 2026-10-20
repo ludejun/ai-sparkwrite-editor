@@ -104,7 +104,7 @@ import { AI_COMPOSER_ACTIONS, RichTextAIComposer } from 'ai-sparkwrite-editor';
 
 ```ts
 import { writeWithAI } from 'ai-sparkwrite-editor';
- // 或 'ai-sparkwrite-editor/core'
+// 或 'ai-sparkwrite-editor/core'
 
 const result = await writeWithAI(editor, {
   prompt: 'Turn the meeting notes into a table of decisions.',
@@ -117,6 +117,22 @@ result.keep(); // 或调用 result.discard() 把原文恢复
 ```
 
 文档级的写入位置（`cursor`、`start`、`end`）会把文档内容作为 Markdown 上下文发送，并裁剪到 `documentContext` 个字符（默认 12000；设为 `0` 则不发送）。`selection` 和 `document` 发送的是受影响的文本本身——当它跨越多个块时会以 Markdown 形式发送，以便重写后结构依然保留。
+
+### 把快捷动作的结果交给宿主
+
+有些预设动作的结果不该进正文："建议标题"更适合填进你应用自己的标题输入框，而不是在文档顶部插一个 `h1`。`onComposeResult` 会在快捷动作写完后被调用，参数包含该动作的 `key`、Markdown 形式的回答、写入位置以及 `writeWithAI` 返回的句柄。返回 `true` 表示宿主已处理：写作台会撤回刚插入的内容（文档恢复原样）并清空提示词；不返回则照常进入保留 / 撤销 / 重试流程。自由输入的提示词和后续精修不会触发它。
+
+```ts
+AI.configure({
+  endpoint: '/api/ai',
+  onComposeResult: ({ action, markdown }) => {
+    if (action === 'editor.ai.compose.title.suggest') {
+      setTitle(markdown.replace(/^#+\s*/, '').trim());
+      return true; // 已处理：编辑器把刚插入的标题撤回
+    }
+  },
+});
+```
 
 ## 灰色续写自动补全
 
@@ -225,7 +241,9 @@ AI.configure({
 | `stream`                                       | `true`                         | 请求服务器推送事件；设为 `false` 则等待一次性的 JSON 答案                                                                                                               |
 | `spaceTrigger`                                 | `true`                         | 在空行按空格键唤起 Ask AI                                                                                                                                               |
 | `documentContext`                              | `12000`                        | 文档级提示词随请求发送的文档字符数                                                                                                                                      |
+| `placement`                                    | `'inline'`                     | `'external'`：Ask AI 对话框不插入正文，由你的 `mountPanel` 渲染到别处（侧栏、抽屉），选区范围随编辑移动                                                                 |
 | `serializeDocument`                            | 编辑器自带的 Markdown 导出逻辑 | `(editor, range) => string`：把一段内容转换成发给模型的文本。跨多个块的片段与整篇文档都会以 Markdown 形式发送，以保留表格、列表和代码的结构；可重写以做脱敏或重新格式化 |
+| `onComposeResult`                              | —                              | `({ action, markdown, target, editor, result }) => boolean \| void`：写作台快捷动作完成后调用；返回 `true` 表示宿主已接管，编辑器撤回刚插入的内容                       |
 | `translateLanguages`                           | `[]`                           | 固定的翻译目标语言；为空则使用浏览器语言                                                                                                                                |
 | `enableImageInput`                             | `true`                         | 允许附加图片（模型需要支持接收图片）                                                                                                                                    |
 | `enableFileInput`                              | `true`                         | 允许附加文本文件，内容会内联进提示词                                                                                                                                    |
