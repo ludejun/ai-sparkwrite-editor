@@ -2,6 +2,13 @@
 
 All notable changes to ai-sparkwrite-editor are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- `RichTextKitToolbar` (React) takes `ai`: a node that replaces the built-in AI control in the first slot of the row, for a host that answers AI elsewhere (a side panel). Like the built-in one it never collapses and is shown whether or not the AI extension is registered.
+- The text bubble menu offers the styled-block look (heading / quote / card variant) for the selected block, so a host can drop the toolbar's block-style dropdown.
+
 ## 1.2.0 — 2026-10-19
 
 ### Added

@@ -16,6 +16,7 @@ import { RichTextItalic } from '@/extensions/Italic';
 import { RichTextLink } from '@/extensions/Link';
 import { renderCommandListDefault } from '@/extensions/SlashCommand';
 import { RichTextStrike } from '@/extensions/Strike';
+import { RichTextBlockStyle } from '@/extensions/StyledBlocks/components/RichTextBlockStyle';
 import { RichTextAlign } from '@/extensions/TextAlign';
 import { RichTextUnderline } from '@/extensions/TextUnderline';
 import { useLocale } from '@/locales';
@@ -125,6 +126,8 @@ function DefaultButtonBubble() {
     <>
       <RichTextAIImprove />
       <ParagraphFormat />
+      {/* one block's look (heading / quote / card variant); renders nothing without StyledBlocks */}
+      <RichTextBlockStyle />
 
       <Separator
         className='!richtext-mx-1 !richtext-my-2 !richtext-h-[16px]'
