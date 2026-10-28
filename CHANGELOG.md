@@ -2,12 +2,19 @@
 
 All notable changes to ai-sparkwrite-editor are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 1.4.0 — 2026-10-28
 
 ### Added
 
 - Collaboration guide (docs, EN + zh) and a README section: wiring `YSyncProvider` and `collaborationKitOptions` into the React and Vue kits, other Yjs providers, saving, read-only members, and the frame format for your own server.
 - `isChangeOrigin` is exported, to skip remote changes when saving from the client; `ai-sparkwrite-editor/vue` now exports the collaboration extensions, `YSyncProvider` and `collaborationKitOptions`.
+- `Mod-K` opens link editing: the link bubble's card when `RichTextBubbleLink` is mounted, else the toolbar's form.
+
+### Changed
+
+- Links made from the toolbar form no longer always get `target="_blank"`: the form's "Open in new tab" box decides, and an unticked link has no `target`. The Link `button()` props no longer carry a `target` (the Tiptap default `_blank` was mistaken for a forced value, which hid the box).
+- Code view does not rewrite the document any more, so no update (and no autosave) fires while it is open; the document changes once, when edited source is applied.
+- Hosts that re-rendered after `editor.setEditable(x, false)` so the controls caught up can drop that workaround.
 
 ### Fixed
 
@@ -15,7 +22,7 @@ All notable changes to ai-sparkwrite-editor are recorded here. The format follow
 - Node views in read-only: the code block keeps only Copy (no language picker, no Delete); cards, dividers and images, GIFs, Mermaid and drawings lose their editing handles, and a resize in progress ends.
 - Code view is a source editor laid over the document: opening it emits no update and adds no undo step; leaving applies edited source as one undoable step. It closes without applying when the editor turns read-only.
 - Image, GIF, video, Mermaid and drawing bubbles show only for a selected node of that kind (not for Select All), and their Delete removes only that node.
-- Links: only a bare domain gets `https://` (and a bare address `mailto:`); relative paths, anchors, `mailto:` and `tel:` are kept, `javascript:` is refused. "Open in new tab" is honoured, the toolbar, bubble and Vue forms share one path, and `Mod-K` opens link editing.
+- Links: only a bare domain gets `https://` (and a bare address `mailto:`); relative paths, anchors, `mailto:` and `tel:` are kept, `javascript:` is refused. "Open in new tab" is honoured, and the toolbar, bubble and Vue forms share one path.
 - Collaborative Redo is enabled right after a Yjs undo.
 - The table context menu is anchored from `<body>`; the link hover bubble hides on typing or caret moves; search shows `0/0` without results and removes its highlights when closed.
 - Details: read-only toggles no longer flip the stored `open` once editable; the toggle's label is translated. Pasted Markdown code blocks lose the trailing empty line. Icon buttons carry an `aria-label`.
