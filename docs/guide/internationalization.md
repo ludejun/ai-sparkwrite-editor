@@ -51,6 +51,7 @@ Ordered by the number of speakers worldwide.
 | -------------------- | ------- | ------------------ |
 | English              | `en`    | `/locales/en`      |
 | Simplified Chinese   | `zh_CN` | `/locales/zh-cn`   |
+| Traditional Chinese  | `zh_TW` | `/locales/zh-tw`   |
 | Hindi                | `hi`    | `/locales/hi`      |
 | Spanish              | `es`    | `/locales/es`      |
 | French               | `fr`    | `/locales/fr`      |
@@ -67,7 +68,7 @@ Ordered by the number of speakers worldwide.
 | Hungarian            | `hu_HU` | `/locales/hu`      |
 | Finnish              | `fi`    | `/locales/fi`      |
 
-Use the exact code, including underscores and capitalization: three codes differ from their file name (`zh_CN` → `/locales/zh-cn`, `pt_BR` → `/locales/pt-br`, `hu_HU` → `/locales/hu`). Each dictionary has a default export. For example, register `/locales/pt-br` under the language code `pt_BR`.
+Use the exact code, including underscores and capitalization: four codes differ from their file name (`zh_CN` → `/locales/zh-cn`, `zh_TW` → `/locales/zh-tw`, `pt_BR` → `/locales/pt-br`, `hu_HU` → `/locales/hu`). Each dictionary has a default export. For example, register `/locales/pt-br` under the language code `pt_BR`.
 
 No right-to-left language ships yet: the editor's own chrome (toolbar, dialogs, bubble menus) is laid out left-to-right, so an RTL dictionary alone would leave the interface mirrored incorrectly. Right-to-left _document content_ is supported through the Text Direction control regardless of the interface language.
 
@@ -91,7 +92,8 @@ type Loader = () => Promise<{ default: Record<string, string> }>;
 /** English needs no loader: the `/locale` entry already registers it. */
 const LANGUAGES: { code: string; label: string; load?: Loader }[] = [
   { code: 'en', label: 'English' },
-  { code: 'zh_CN', label: '中文', load: () => import('ai-sparkwrite-editor/locales/zh-cn') },
+  { code: 'zh_CN', label: '简体中文', load: () => import('ai-sparkwrite-editor/locales/zh-cn') },
+  { code: 'zh_TW', label: '繁體中文', load: () => import('ai-sparkwrite-editor/locales/zh-tw') },
   { code: 'hi', label: 'हिन्दी', load: () => import('ai-sparkwrite-editor/locales/hi') },
   { code: 'es', label: 'Español', load: () => import('ai-sparkwrite-editor/locales/es') },
   { code: 'fr', label: 'Français', load: () => import('ai-sparkwrite-editor/locales/fr') },
@@ -187,9 +189,10 @@ if (match) {
 }
 ```
 
-Base matching is approximate where one base language ships in a single variant:
-`zh-TW` falls back to `zh_CN`, so a reader in Taiwan sees Simplified Chinese.
-Map those cases explicitly if it matters to your users.
+Base matching is approximate where a base language ships in more than one variant:
+`zh-TW` matches `zh_TW` exactly, but `zh-HK`, `zh-MO` and `zh-Hant` only match
+by base and get whichever Chinese comes first in `LANGUAGES`. Map them to
+`zh_TW` explicitly if it matters to your users.
 
 ### Compatibility entry
 
