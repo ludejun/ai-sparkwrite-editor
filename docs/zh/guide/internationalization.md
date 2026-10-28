@@ -51,6 +51,7 @@ export function LanguagePicker() {
 | ------------ | ------- | ---------------- |
 | 英语         | `en`    | `/locales/en`    |
 | 简体中文     | `zh_CN` | `/locales/zh-cn` |
+| 繁體中文     | `zh_TW` | `/locales/zh-tw` |
 | 印地语       | `hi`    | `/locales/hi`    |
 | 西班牙语     | `es`    | `/locales/es`    |
 | 法语         | `fr`    | `/locales/fr`    |
@@ -67,7 +68,7 @@ export function LanguagePicker() {
 | 匈牙利语     | `hu_HU` | `/locales/hu`    |
 | 芬兰语       | `fi`    | `/locales/fi`    |
 
-请使用准确的代码，包括下划线和大小写：其中三个代码与其文件名不同（`zh_CN` → `/locales/zh-cn`、`pt_BR` → `/locales/pt-br`、`hu_HU` → `/locales/hu`）。每个语言包都有一个默认导出。例如，将 `/locales/pt-br` 注册到语言代码 `pt_BR` 下。
+请使用准确的代码，包括下划线和大小写：其中四个代码与其文件名不同（`zh_CN` → `/locales/zh-cn`、`zh_TW` → `/locales/zh-tw`、`pt_BR` → `/locales/pt-br`、`hu_HU` → `/locales/hu`）。每个语言包都有一个默认导出。例如，将 `/locales/pt-br` 注册到语言代码 `pt_BR` 下。
 
 目前还没有任何从右到左书写的语言：编辑器自身的外壳（工具栏、对话框、气泡菜单）是从左到右排列的，单靠一个 RTL 语言包并不能正确镜像整个界面。无论界面语言是什么，_文档内容_ 的从右到左书写都可以通过文字方向控件支持。
 
@@ -90,7 +91,8 @@ type Loader = () => Promise<{ default: Record<string, string> }>;
 /** English needs no loader: the `/locale` entry already registers it. */
 const LANGUAGES: { code: string; label: string; load?: Loader }[] = [
   { code: 'en', label: 'English' },
-  { code: 'zh_CN', label: '中文', load: () => import('ai-sparkwrite-editor/locales/zh-cn') },
+  { code: 'zh_CN', label: '简体中文', load: () => import('ai-sparkwrite-editor/locales/zh-cn') },
+  { code: 'zh_TW', label: '繁體中文', load: () => import('ai-sparkwrite-editor/locales/zh-tw') },
   { code: 'hi', label: 'हिन्दी', load: () => import('ai-sparkwrite-editor/locales/hi') },
   { code: 'es', label: 'Español', load: () => import('ai-sparkwrite-editor/locales/es') },
   { code: 'fr', label: 'Français', load: () => import('ai-sparkwrite-editor/locales/fr') },
@@ -186,9 +188,9 @@ if (match) {
 }
 ```
 
-当某个基础语言只对应单一变体时，基础语言匹配只是近似处理：
-`zh-TW` 会回退到 `zh_CN`，因此身处台湾的读者看到的是简体中文。
-如果这对你的用户很重要，请显式地为这些情况单独映射。
+当某个基础语言有多个变体时，基础语言匹配只是近似处理：
+`zh-TW` 会精确匹配到 `zh_TW`，但 `zh-HK`、`zh-MO`、`zh-Hant` 只能按基础语言匹配，
+得到 `LANGUAGES` 里排在前面的那种中文。如果这对你的用户很重要，请把它们显式映射到 `zh_TW`。
 
 ### 兼容入口
 

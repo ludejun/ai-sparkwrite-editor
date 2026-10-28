@@ -46,6 +46,7 @@ test('individual locales share state with the compatibility bundle and fall back
     'tr',
     'vi',
     'zh_CN',
+    'zh_TW',
   ] as const;
 
   for (const language of bundledLanguages) {

@@ -2,6 +2,12 @@
 
 All notable changes to ai-sparkwrite-editor are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org/).
 
+## 1.4.1 — 2026-10-28
+
+### Added
+
+- Traditional Chinese: `ai-sparkwrite-editor/locales/zh-tw`, registered as `zh_TW` (also in `locale-bundle`). Written in Taiwan usage rather than converted from Simplified character by character. The internationalization guide lists it and suggests mapping `zh-HK`, `zh-MO` and `zh-Hant` to `zh_TW`.
+
 ## 1.4.0 — 2026-10-28
 
 ### Added
