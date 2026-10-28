@@ -26,7 +26,7 @@ export function NodeViewAttachment({
 }: NodeViewProps) {
   const $upload = useRef<HTMLInputElement>(null);
 
-  const isEditable = useEditableEditor();
+  const isEditable = useEditableEditor(editor);
 
   const { hasTrigger, fileName, fileSize, fileExt, fileType, url, error } = node.attrs;
   const [loading, setLoading] = useState(false);

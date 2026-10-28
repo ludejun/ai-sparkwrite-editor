@@ -234,6 +234,8 @@ const locale = {
   'editor.notice.tip': 'Tips',
   'editor.notice.remove': 'Hapus pemberitahuan',
   'editor.details.tooltip': 'Blok lipat',
+  'editor.details.expand': 'Bentangkan',
+  'editor.details.collapse': 'Ciutkan',
   'editor.tableofcontents.tooltip': 'Daftar isi',
   'editor.tableofcontents.title': 'Daftar isi',
   'editor.tableofcontents.empty': 'Tambahkan judul untuk membuat daftar isi',

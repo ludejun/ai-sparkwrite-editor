@@ -59,3 +59,18 @@ Open `http://127.0.0.1:5199/tests/ai-editor.html` for browser checks covering
 selection replacement, safe text insertion, Apply/Undo, Discard, read-only state,
 and invalidation after document edits. It also provides a mock slash-command demo
 without sending requests to a provider.
+
+# Editable state and editing controls
+
+```sh
+pnpm exec esno --test tests/editor-fixes.test.ts
+pnpm exec vite --config tests/vite.config.ts
+```
+
+The Node tests cover link addresses, toolbar actions that re-check editability
+when they run, media bubbles under Select All, code view, the search counter and
+Markdown code-block paste. Open `http://127.0.0.1:5199/tests/editable-state.html`
+for the browser checks: every control after `setEditable(x, false)` (no update
+event), a read-only editor nested in another editor's provider, node views,
+code view as a display layer, the link and table overlays, Details in read-only,
+and collaborative undo / redo.

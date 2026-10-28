@@ -234,6 +234,8 @@ const locale = {
   'editor.notice.tip': 'Совет',
   'editor.notice.remove': 'Убрать заметку',
   'editor.details.tooltip': 'Сворачиваемый блок',
+  'editor.details.expand': 'Развернуть',
+  'editor.details.collapse': 'Свернуть',
   'editor.tableofcontents.tooltip': 'Оглавление',
   'editor.tableofcontents.title': 'Оглавление',
   'editor.tableofcontents.empty': 'Добавьте заголовки, чтобы построить оглавление',

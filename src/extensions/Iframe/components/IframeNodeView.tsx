@@ -15,7 +15,7 @@ import styles from './index.module.scss';
 import type { NodeViewProps } from '@tiptap/react';
 
 function IframeNodeView({ editor, node, updateAttributes, deleteNode }: NodeViewProps) {
-  const isEditable = useEditableEditor();
+  const isEditable = useEditableEditor(editor);
   const { t } = useLocale();
 
   const { src, width, height } = node.attrs;

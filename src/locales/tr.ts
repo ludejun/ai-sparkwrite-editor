@@ -234,6 +234,8 @@ const locale = {
   'editor.notice.tip': 'İpucu',
   'editor.notice.remove': 'Bildirim kutusunu kaldır',
   'editor.details.tooltip': 'Katlanır blok',
+  'editor.details.expand': 'Genişlet',
+  'editor.details.collapse': 'Daralt',
   'editor.tableofcontents.tooltip': 'İçindekiler',
   'editor.tableofcontents.title': 'İçindekiler',
   'editor.tableofcontents.empty': 'İçindekiler tablosunu oluşturmak için başlık ekleyin',

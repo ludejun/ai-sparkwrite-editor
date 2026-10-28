@@ -83,6 +83,27 @@ function fixMarkdownTables(text: string): string {
   return result.join('\n');
 }
 
+/** The HTML a pasted Markdown text is inserted as. */
+export function markdownToPasteHTML(markdown: string): string {
+  // Usage: https://marked.js.org/#usage
+  // marked.parse() synchronously converts a markdown string to HTML.
+  const html = marked.parse(fixMarkdownTables(markdown), {
+    gfm: true,
+    breaks: true,
+  }) as string;
+
+  return (
+    html
+      // Strip <thead> and <tbody> wrappers — TipTap's table schema only
+      // understands <table>, <tr>, <th>, and <td>. The wrapper tags are
+      // unknown nodes that get dropped during ProseMirror parsing.
+      .replace(/<\/?(thead|tbody)>/g, '')
+      // marked ends every code block with a newline, which a code block keeps
+      // (whitespace inside <pre> is preserved) as an empty last line.
+      .replace(/\n<\/code><\/pre>/g, '</code></pre>')
+  );
+}
+
 export interface MarkdownPasteOptions {
   enabled: boolean;
 }
@@ -112,22 +133,7 @@ export const MarkdownPaste = Extension.create<MarkdownPasteOptions>({
             const rawText = clipboardData.getData('text/plain');
             if (!rawText || !looksLikeMarkdown(rawText)) return false;
 
-            // Fix table formatting — collapse blank lines between pipe-delimited rows
-            const text = fixMarkdownTables(rawText);
-
-            // Usage: https://marked.js.org/#usage
-            // marked.parse() synchronously converts a markdown string to HTML.
-            let converted = marked.parse(text, {
-              gfm: true,
-              breaks: true,
-            }) as string;
-
-            // Strip <thead> and <tbody> wrappers — TipTap's table schema only
-            // understands <table>, <tr>, <th>, and <td>. The wrapper tags are
-            // unknown nodes that get dropped during ProseMirror parsing.
-            converted = converted.replace(/<\/?(thead|tbody)>/g, '');
-
-            editor.commands.insertContent(converted, {
+            editor.commands.insertContent(markdownToPasteHTML(rawText), {
               parseOptions: { preserveWhitespace: false },
             });
 

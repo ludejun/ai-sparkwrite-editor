@@ -79,3 +79,5 @@ const editor = useEditor({
 ## How to use
 
 Select the text to link, open the toolbar dialog, and enter a URL. Mount `RichTextBubbleLink` to edit a link after selecting it. Use `editor.chain().focus().setLink({ href: "https://example.com" }).run()` to apply a link to a selection, and `unsetLink()` to remove it.
+
+The address is stored as typed, with one exception: a bare domain (`example.com/a`, `localhost:3000`) gets `https://` and a bare e-mail address gets `mailto:`. Paths (`/notes/abc`, `./a`), anchors (`#x`), queries and `mailto:` / `tel:` links are kept, and a disallowed scheme such as `javascript:` is refused. The form's **Open in new tab** sets `target="_blank"`; unticked, the link has no target. `Mod-K` opens the link card from the keyboard (the bubble's when `RichTextBubbleLink` is mounted, else the toolbar's): it edits the link under the caret or links the selection.

@@ -1,10 +1,12 @@
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react';
 import { PaletteIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components';
 import { cn } from '@/lib/utils';
 import { useLocale } from '@/locales';
+import { useEditableEditor } from '@/store/store';
+import { isEditorEditable } from '@/utils/editable';
 
 import type { CardOptions } from '@/extensions/StyledBlocks/StyledBlocks';
 import type { NodeViewProps } from '@tiptap/react';
@@ -22,14 +24,23 @@ export function cardStyleLabel(variant: string, t: (key: string) => string): str
  */
 export function NodeViewCard({ node, editor, extension, updateAttributes, getPos }: NodeViewProps) {
   const { t } = useLocale();
+  const editable = useEditableEditor(editor);
   const [open, setOpen] = useState(false);
   const variant = String(node.attrs.variant || 'soft');
   const label = (node.attrs.label as string | null) || '';
   const variants = (extension.options as CardOptions).variants;
 
+  useEffect(() => {
+    if (!editable) setOpen(false);
+  }, [editable]);
+
+  const update = (attributes: Record<string, unknown>) => {
+    if (isEditorEditable(editor)) updateAttributes(attributes);
+  };
+
   const unwrap = () => {
     const pos = getPos();
-    if (typeof pos !== 'number') return;
+    if (typeof pos !== 'number' || !isEditorEditable(editor)) return;
     setOpen(false);
     editor
       .chain()
@@ -48,7 +59,7 @@ export function NodeViewCard({ node, editor, extension, updateAttributes, getPos
       data-type='card'
       data-variant={variant}
     >
-      {editor.isEditable ? (
+      {editable ? (
         <div className='sn-box__handle' contentEditable={false}>
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
@@ -76,7 +87,7 @@ export function NodeViewCard({ node, editor, extension, updateAttributes, getPos
                     key={value}
                     role='radio'
                     type='button'
-                    onClick={() => updateAttributes({ variant: value })}
+                    onClick={() => update({ variant: value })}
                   >
                     <span className={cn('sn-box sn-box-sample', `sn-box--${value}`)}>
                       <span className='sn-box-sample__line' />
@@ -92,7 +103,7 @@ export function NodeViewCard({ node, editor, extension, updateAttributes, getPos
                   maxLength={12}
                   placeholder={t('editor.card.label.placeholder')}
                   value={label}
-                  onChange={(event) => updateAttributes({ label: event.target.value || null })}
+                  onChange={(event) => update({ label: event.target.value || null })}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' || event.key === 'Escape') {
                       event.preventDefault();

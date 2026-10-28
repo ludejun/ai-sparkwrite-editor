@@ -4,14 +4,12 @@ import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
 import { UndoRedo } from '@tiptap/extensions';
 import { Editor, EditorContext } from '@tiptap/react';
-import React, { act, useCallback, useEffect } from 'react';
+import React, { act, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { useActive, useToggleActive } from '../src/hooks/useActive';
 import { useAttributes } from '../src/hooks/useAttributes';
 import { useEditorInstance } from '../src/store/editor';
-import { EditorEditableReactive } from '../src/store/EditorEditableReactive';
-import { useStoreEditableEditor } from '../src/store/store';
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
 const editor = new Editor({
@@ -67,8 +65,6 @@ function ManualProbe() {
   return null;
 }
 function Probes() {
-  const setEditable = useStoreEditableEditor();
-  useEffect(() => setEditable(true), [setEditable]);
   return (
     <>
       <InstanceProbe />
@@ -92,7 +88,6 @@ async function run() {
     root.render(
       <EditorContext.Provider value={{ editor }}>
         <Probes />
-        <EditorEditableReactive editor={editor} />
       </EditorContext.Provider>
     )
   );
@@ -142,6 +137,17 @@ async function run() {
     editor.setEditable(true);
   });
   check(!disabled, 'editable state restores controls');
+  // StarNote toggles without an update event so the switch is not autosaved.
+  await act(async () => {
+    editor.setEditable(false, false);
+    await Promise.resolve();
+  });
+  check(disabled, 'setEditable(false, false) disables controls without an update event');
+  await act(async () => {
+    editor.setEditable(true, false);
+    await Promise.resolve();
+  });
+  check(!disabled, 'setEditable(true, false) restores controls without an update event');
   await act(async () => root.unmount());
   editor.destroy();
   document.querySelector('#results')!.textContent = results.join('\n');

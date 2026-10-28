@@ -236,6 +236,8 @@ const locale = {
   'editor.notice.tip': 'Astuce',
   'editor.notice.remove': 'Supprimer l’encadré',
   'editor.details.tooltip': 'Bloc dépliant',
+  'editor.details.expand': 'Déplier',
+  'editor.details.collapse': 'Replier',
   'editor.tableofcontents.tooltip': 'Table des matières',
   'editor.tableofcontents.title': 'Table des matières',
   'editor.tableofcontents.empty': 'Ajoutez des titres pour créer la table des matières',

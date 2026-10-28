@@ -234,6 +234,8 @@ const locale = {
   'editor.notice.tip': '팁',
   'editor.notice.remove': '알림 블록 제거',
   'editor.details.tooltip': '접기 블록',
+  'editor.details.expand': '펼치기',
+  'editor.details.collapse': '접기',
   'editor.tableofcontents.tooltip': '목차',
   'editor.tableofcontents.title': '목차',
   'editor.tableofcontents.empty': '제목을 추가하면 목차가 만들어집니다',

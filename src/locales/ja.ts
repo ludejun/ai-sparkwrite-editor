@@ -224,6 +224,8 @@ const locale = {
   'editor.notice.tip': 'ヒント',
   'editor.notice.remove': '注記を解除',
   'editor.details.tooltip': 'トグルリスト',
+  'editor.details.expand': '展開',
+  'editor.details.collapse': '折りたたむ',
   'editor.tableofcontents.tooltip': '目次',
   'editor.tableofcontents.title': '目次',
   'editor.tableofcontents.empty': '見出しを追加すると目次が生成されます',

@@ -80,6 +80,8 @@ const ActionButton = React.forwardRef<HTMLButtonElement, Partial<ActionButtonPro
       <Tooltip>
         <TooltipTrigger asChild>
           <Comp
+            // Icon-only buttons: the tooltip is the accessible name too.
+            aria-label={tooltip}
             className={cn('richtext-h-[32px] richtext-w-[32px]', customClass)}
             data-state={dataState ? 'on' : 'off'} // active background control
             disabled={disabled} // disable button control

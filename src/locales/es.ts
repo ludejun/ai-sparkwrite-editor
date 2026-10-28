@@ -234,6 +234,8 @@ const locale = {
   'editor.notice.tip': 'Consejo',
   'editor.notice.remove': 'Quitar aviso',
   'editor.details.tooltip': 'Bloque plegable',
+  'editor.details.expand': 'Expandir',
+  'editor.details.collapse': 'Contraer',
   'editor.tableofcontents.tooltip': 'Tabla de contenidos',
   'editor.tableofcontents.title': 'Tabla de contenidos',
   'editor.tableofcontents.empty': 'Añade encabezados para crear la tabla de contenidos',

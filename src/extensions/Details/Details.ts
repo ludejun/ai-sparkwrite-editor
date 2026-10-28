@@ -4,6 +4,9 @@ import {
   DetailsSummary as TiptapDetailsSummary,
 } from '@tiptap/extension-details';
 
+import { translate } from '@/locales/store';
+import { watchEditable } from '@/utils/editable';
+
 import type { GeneralOptions } from '@/types';
 import type {
   DetailsContentOptions,
@@ -57,6 +60,18 @@ export const Details = /* @__PURE__ */ TiptapDetails.extend<DetailsOptions>({
       HTMLAttributes: {
         class: 'details',
       },
+      renderToggleButton: ({
+        element,
+        isOpen,
+      }: {
+        element: HTMLButtonElement;
+        isOpen: boolean;
+      }) => {
+        element.setAttribute(
+          'aria-label',
+          translate(isOpen ? 'editor.details.collapse' : 'editor.details.expand')
+        );
+      },
       summary: {},
       content: {},
       button: ({ editor, t, extension }) => ({
@@ -76,6 +91,60 @@ export const Details = /* @__PURE__ */ TiptapDetails.extend<DetailsOptions>({
           tooltip: t('editor.details.tooltip'),
         },
       }),
+    };
+  },
+
+  // While read-only a click opens or closes the block in the DOM only (the
+  // document must not change). Once editable again, show the stored `open`
+  // again: the upstream toggle flips the stored value, so a DOM that had
+  // drifted would end up the opposite of what it shows.
+  addNodeView() {
+    const parent = this.parent?.();
+
+    if (!parent) return null;
+
+    const { openClassName } = this.options;
+
+    return (props) => {
+      const view = parent(props);
+      const dom = view.dom as HTMLElement;
+      let node = props.node;
+
+      const showStoredState = () => {
+        if (!this.options.persist) return;
+
+        const open = !!node.attrs.open;
+
+        if (dom.classList.contains(openClassName) === open) return;
+
+        dom.classList.toggle(openClassName, open);
+        dom
+          .querySelector('[data-type="detailsContent"]')
+          ?.dispatchEvent(new Event('toggleDetailsContent'));
+
+        const toggle = dom.querySelector(':scope > button');
+
+        if (toggle instanceof HTMLButtonElement) {
+          this.options.renderToggleButton({ element: toggle, isOpen: open, node });
+        }
+      };
+
+      const stop = watchEditable(props.editor, (editable) => editable && showStoredState());
+      const update = view.update?.bind(view);
+      const destroy = view.destroy?.bind(view);
+
+      return {
+        ...view,
+        update: (...args: Parameters<NonNullable<typeof view.update>>) => {
+          const handled = update ? update(...args) : false;
+          if (handled) node = args[0];
+          return handled;
+        },
+        destroy: () => {
+          stop();
+          destroy?.();
+        },
+      };
     };
   },
 

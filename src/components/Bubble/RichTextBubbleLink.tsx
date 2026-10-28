@@ -1,11 +1,13 @@
 import { BubbleMenu } from '@tiptap/react/menus';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { BUBBLE_TEXT_KEY } from '@/components/Bubble/bubbleKeys';
 import LinkEditBlock from '@/extensions/Link/components/LinkEditBlock';
 import LinkViewBlock from '@/extensions/Link/components/LinkViewBlock';
-import { Link } from '@/extensions/Link/Link';
+import { Link, applyLinkEdit } from '@/extensions/Link/Link';
 import { useEditorInstance } from '@/store/editor';
 import { useEditableEditor } from '@/store/store';
+import { isEditorEditable } from '@/utils/editable';
 
 import type { Editor } from '@tiptap/react';
 
@@ -41,6 +43,10 @@ export function RichTextBubbleLink() {
   // it open, and it stays anchored to the link element instead of the selection.
   useEffect(() => {
     if (!editable) {
+      // Turned read-only mid-hover or mid-edit: nothing stays open for later.
+      if (editor.storage.link) editor.storage.link.editing = false;
+      setShowEdit(false);
+      setHoveredLink(null);
       return;
     }
 
@@ -73,12 +79,25 @@ export function RichTextBubbleLink() {
       scheduleHide();
     };
 
+    // Typing or moving the caret means the reader moved on from the hovered
+    // link. The storage flag, not `showEdit`, is read: opening the card selects
+    // the link synchronously, before this closure sees the new state.
+    const hideNow = () => {
+      if (editor.storage.link?.editing) return;
+      clearTimeout(hideTimer.current);
+      setHoveredLink(null);
+    };
+
     dom.addEventListener('mouseover', onMouseOver);
     dom.addEventListener('mouseleave', onMouseLeave);
+    dom.addEventListener('keydown', hideNow);
+    editor.on('selectionUpdate', hideNow);
 
     return () => {
       dom.removeEventListener('mouseover', onMouseOver);
       dom.removeEventListener('mouseleave', onMouseLeave);
+      dom.removeEventListener('keydown', hideNow);
+      editor.off('selectionUpdate', hideNow);
       clearTimeout(hideTimer.current);
     };
   }, [editor, editable, showEdit, scheduleHide]);
@@ -112,6 +131,33 @@ export function RichTextBubbleLink() {
     },
     [editor]
   );
+
+  // Mod-K: edit the link under the caret, or link the selection, in this card.
+  useEffect(() => {
+    const storage = editor.storage.link;
+
+    if (!editable || !storage) return;
+
+    const open = () => {
+      const { node } = editor.view.domAtPos(editor.state.selection.from);
+      const element = node instanceof Element ? node : node.parentElement;
+      const anchor = element?.closest('a');
+      const inLink = anchor instanceof HTMLAnchorElement && editor.view.dom.contains(anchor);
+
+      setEditing(true);
+      setHoveredLink(inLink ? anchor : null);
+      // The selection may not move, so the text bubble would not re-check `editing`.
+      editor.view.dispatch(editor.state.tr.setMeta(BUBBLE_TEXT_KEY, 'hide'));
+
+      if (inLink) editor.commands.extendMarkRange(Link.name);
+    };
+
+    storage.openEditor = open;
+
+    return () => {
+      if (storage.openEditor === open) storage.openEditor = null;
+    };
+  }, [editor, editable, setEditing]);
 
   // The card is anchored to the hovered link; while it is open the anchor must
   // survive the pointer wandering off, or the card would fall back to following
@@ -161,41 +207,19 @@ export function RichTextBubbleLink() {
     };
   }, [hoveredLink]);
 
-  const onSetLink = (url: string, text?: string, openInNewTab?: boolean) => {
-    const selection = editor.state.selection;
-    const { from } = selection;
-
-    const insertedLength = text?.length ?? 0;
-    const newTo = from + insertedLength;
-
-    editor
-      .chain()
-      .extendMarkRange('link')
-      .insertContent({
-        type: 'text',
-        text,
-        marks: [
-          {
-            type: 'link',
-            attrs: {
-              href: url,
-              target: openInNewTab ? '_blank' : '',
-            },
-          },
-        ],
-      })
-      .setLink({ href: url })
-      .setTextSelection({ from, to: newTo }) // 👈 Select inserted text
-      .focus()
-      .run();
-
+  // The same path as the toolbar form, so both store links alike.
+  const onSetLink = (link: string, text?: string, openInNewTab?: boolean) => {
+    applyLinkEdit(editor, { link, text, openInNewTab });
     setEditing(false);
     setHoveredLink(null);
   };
 
   const unSetLink = useCallback(() => {
-    selectHoveredLink();
-    editor.chain().extendMarkRange('link').unsetLink().focus().run();
+    if (isEditorEditable(editor)) {
+      selectHoveredLink();
+      editor.chain().extendMarkRange('link').unsetLink().focus().run();
+    }
+
     setEditing(false);
     setHoveredLink(null);
   }, [editor, selectHoveredLink, setEditing]);
@@ -230,6 +254,7 @@ export function RichTextBubbleLink() {
               link={link}
               onClear={unSetLink}
               onEdit={() => {
+                if (!isEditorEditable(editor)) return;
                 // Flag first: selecting the link re-runs the text bubble's `shouldShow`.
                 setEditing(true);
                 selectHoveredLink();

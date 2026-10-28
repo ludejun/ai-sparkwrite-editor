@@ -11,7 +11,8 @@ import { useLocale } from '@/locales';
 import { useEditorInstance } from '@/store/editor';
 import { useEditableEditor } from '@/store/store';
 
-import type { Node as ProseMirrorNode } from '@tiptap/pm/model';
+import { isNodeSelected } from './nodeSelection';
+
 import type { Editor } from '@tiptap/react';
 
 function ItemA({
@@ -59,20 +60,9 @@ export function RichTextBubbleDrawer() {
 
   const extension = useExtension(Drawer.name);
 
-  const shouldShow = ({ editor }: { editor: Editor }) => {
-    const { selection } = editor.view.state;
-    const { $from, to } = selection;
-    let isDrawer = false;
-
-    editor.view.state.doc.nodesBetween($from.pos, to, (node: ProseMirrorNode) => {
-      if (node.type.name === Drawer.name) {
-        isDrawer = true;
-        return false; // Stop iteration if an mermaid is found
-      }
-    });
-
-    return isDrawer;
-  };
+  // Only for the node itself, not a range (Select All) that contains it.
+  const shouldShow = ({ editor }: { editor: Editor }) =>
+    isNodeSelected(editor.state, [Drawer.name]);
 
   const items = useMemo(() => {
     return getBubbleDrawer(editor, t);

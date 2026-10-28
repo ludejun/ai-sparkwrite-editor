@@ -234,6 +234,8 @@ const locale = {
   'editor.notice.tip': 'सुझाव',
   'editor.notice.remove': 'सूचना बॉक्स हटाएँ',
   'editor.details.tooltip': 'टॉगल ब्लॉक',
+  'editor.details.expand': 'विस्तार करें',
+  'editor.details.collapse': 'संक्षिप्त करें',
   'editor.tableofcontents.tooltip': 'विषय-सूची',
   'editor.tableofcontents.title': 'विषय-सूची',
   'editor.tableofcontents.empty': 'विषय-सूची बनाने के लिए शीर्षक जोड़ें',

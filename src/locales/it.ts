@@ -234,6 +234,8 @@ const locale = {
   'editor.notice.tip': 'Suggerimento',
   'editor.notice.remove': 'Rimuovi avviso',
   'editor.details.tooltip': 'Blocco comprimibile',
+  'editor.details.expand': 'Espandi',
+  'editor.details.collapse': 'Comprimi',
   'editor.tableofcontents.tooltip': 'Sommario',
   'editor.tableofcontents.title': 'Sommario',
   'editor.tableofcontents.empty': 'Aggiungi titoli per creare il sommario',

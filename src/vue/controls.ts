@@ -63,6 +63,7 @@ import { DIVIDER_VARIANTS } from '@/extensions/Divider/Divider';
 import { resolveEmbed } from '@/extensions/Iframe/embeds';
 import { rememberUploadedImage } from '@/extensions/Image/imageLifecycle';
 import { loadKatex } from '@/extensions/Katex/katex-loader';
+import { applyLinkEdit } from '@/extensions/Link/Link';
 import { NOTICE_TYPES, type NoticeType } from '@/extensions/Notice/Notice';
 import { dataURLtoFile, extractFileExtension, extractFilename } from '@/utils/file';
 import { safeJSONParse } from '@/utils/json';
@@ -413,20 +414,12 @@ export const RichTextLinkForm = defineComponent({
     const submit = () => {
       const url = href.value.trim();
       if (!url) return;
-      const label = text.value.trim() || url;
-      const { from: start } = props.editor.state.selection;
-
-      props.editor
-        .chain()
-        .extendMarkRange('link')
-        .insertContent({
-          type: 'text',
-          text: label,
-          marks: [{ type: 'link', attrs: { href: url, target: newTab.value ? '_blank' : null } }],
-        })
-        .setTextSelection({ from: start, to: start + label.length })
-        .focus()
-        .run();
+      // The React form's path too: bare domains get https://, paths stay as typed.
+      applyLinkEdit(props.editor, {
+        link: url,
+        text: text.value.trim(),
+        openInNewTab: newTab.value,
+      });
       emit('done');
     };
 

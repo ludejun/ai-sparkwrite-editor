@@ -3,6 +3,7 @@ import { BubbleMenu } from '@tiptap/vue-3/menus';
 import { AlignCenter, AlignLeft, AlignRight, Trash2 } from 'lucide-vue-next';
 import { defineComponent, h } from 'vue';
 
+import { deleteSelectedNode, isNodeSelected } from '@/components/Bubble/nodeSelection';
 import { IMAGE_SIZE } from '@/constants';
 
 import { useEditorState, useLocale } from '../context';
@@ -11,6 +12,8 @@ import { RichTextToolbarButton, RichTextToolbarDivider } from '../ui';
 import { BUBBLE_CLASS, BUBBLE_OPTIONS, useBubbleEditor } from './shared';
 
 import type { Editor } from '@tiptap/core';
+
+const IMAGE_NODES = ['image', 'imageBlock'];
 
 type ImageAlignment = 'left' | 'center' | 'right';
 type ImageSize = 'size-small' | 'size-medium' | 'size-large';
@@ -48,8 +51,9 @@ export const RichTextBubbleImage = defineComponent({
       { align: undefined, width: undefined }
     );
 
+    // Only for the image itself, not a range (Select All) that contains one.
     const shouldShow = ({ editor: current }: { editor: Editor }) =>
-      current.isActive('image') || current.isActive('imageBlock');
+      isNodeSelected(current.state, IMAGE_NODES);
 
     return () => {
       const current = editor.value;
@@ -89,7 +93,7 @@ export const RichTextBubbleImage = defineComponent({
             h(RichTextToolbarButton, {
               icon: Trash2,
               tooltip: t('editor.remove'),
-              onClick: () => current.chain().focus().deleteSelection().run(),
+              onClick: () => deleteSelectedNode(current, IMAGE_NODES),
             }),
           ]),
         ]

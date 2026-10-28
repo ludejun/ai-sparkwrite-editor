@@ -2,6 +2,19 @@
 
 All notable changes to ai-sparkwrite-editor are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+### Fixed
+
+- Controls follow `editor.setEditable(x, false)` (no update event): the toolbar, bubbles, format painter, drag handle and node views re-render on every editability change, per editor instead of one module-wide value, so a read-only editor inside another editor's `RichTextProvider` reads its own state. Toolbar actions, link and table menus and node-view controls check editability again when they run.
+- Node views in read-only: the code block keeps only Copy (no language picker, no Delete); cards, dividers and images, GIFs, Mermaid and drawings lose their editing handles, and a resize in progress ends.
+- Code view is a source editor laid over the document: opening it emits no update and adds no undo step; leaving applies edited source as one undoable step. It closes without applying when the editor turns read-only.
+- Image, GIF, video, Mermaid and drawing bubbles show only for a selected node of that kind (not for Select All), and their Delete removes only that node.
+- Links: only a bare domain gets `https://` (and a bare address `mailto:`); relative paths, anchors, `mailto:` and `tel:` are kept, `javascript:` is refused. "Open in new tab" is honoured, the toolbar, bubble and Vue forms share one path, and `Mod-K` opens link editing.
+- Collaborative Redo is enabled right after a Yjs undo.
+- The table context menu is anchored from `<body>`; the link hover bubble hides on typing or caret moves; search shows `0/0` without results and removes its highlights when closed.
+- Details: read-only toggles no longer flip the stored `open` once editable; the toggle's label is translated. Pasted Markdown code blocks lose the trailing empty line. Icon buttons carry an `aria-label`.
+
 ## 1.3.0 — 2026-10-21
 
 ### Added
