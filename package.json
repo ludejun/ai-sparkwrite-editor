@@ -1,6 +1,6 @@
 {
   "name": "ai-sparkwrite-editor",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "AI-first rich-text editor SDK on Tiptap: streaming AI writing that lands as real document nodes, AI-generated formulas and diagrams, real-time collaboration (Yjs), plus toolbar, bubble menus, tables, code, images, 16 languages and session replay. React and Vue UIs, framework-agnostic core.",
   "keywords": [
     "ai",
