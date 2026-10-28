@@ -2,6 +2,8 @@ import {
   Collaboration as TiptapCollaboration,
   type CollaborationOptions as TiptapCollaborationOptions,
 } from '@tiptap/extension-collaboration';
+// True for a transaction that applied remote changes: autosave only local ones.
+export { isChangeOrigin } from '@tiptap/extension-collaboration';
 import {
   CollaborationCaret as TiptapCollaborationCaret,
   type CollaborationCaretOptions as TiptapCollaborationCaretOptions,

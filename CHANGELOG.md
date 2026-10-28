@@ -4,6 +4,11 @@ All notable changes to ai-sparkwrite-editor are recorded here. The format follow
 
 ## Unreleased
 
+### Added
+
+- Collaboration guide (docs, EN + zh) and a README section: wiring `YSyncProvider` and `collaborationKitOptions` into the React and Vue kits, other Yjs providers, saving, read-only members, and the frame format for your own server.
+- `isChangeOrigin` is exported, to skip remote changes when saving from the client; `ai-sparkwrite-editor/vue` now exports the collaboration extensions, `YSyncProvider` and `collaborationKitOptions`.
+
 ### Fixed
 
 - Controls follow `editor.setEditable(x, false)` (no update event): the toolbar, bubbles, format painter, drag handle and node views re-render on every editability change, per editor instead of one module-wide value, so a read-only editor inside another editor's `RichTextProvider` reads its own state. Toolbar actions, link and table menus and node-view controls check editability again when they run.

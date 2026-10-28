@@ -191,6 +191,16 @@ Client component, `immediatelyRender: false`, null guard before the provider, st
 - Read-only: `editable: false` in `useEditor` or `editor.setEditable(false)`; the AI dock, menus, Space/Tab entry points hide themselves. Hiding buttons alone does not prevent editing.
 - Images at save time: see feature-recipes.md → "Deleting uploaded images".
 
+## Collaboration (Yjs)
+
+- Install `yjs` in the app (one copy: the SDK keeps it external; dedupe it in the bundler).
+- Kit: `RichTextKit.configure({ ...collaborationKitOptions({ document: ydoc, provider, user: { name, color } }) })`. The kit then leaves `history` out; Undo / Redo drive the Yjs undo manager (own changes only). Same options on the Vue kit; everything is also exported from `ai-sparkwrite-editor/vue`.
+- Assembled: `Collaboration.configure({ document })` + `CollaborationCaret.configure({ provider, user })`, no `History`.
+- Provider: `new YSyncProvider(ydoc)` for a socket the app owns — `connect(send)` on open, `receive(bytes)` per binary frame, `disconnect()` on close, `destroy()` on unmount; events `status`, `synced`, `denied`. `y-websocket`'s `WebsocketProvider` or `HocuspocusProvider` work too (only `provider.awareness` is needed).
+- No `content` with collaboration (it would be inserted again on first sync); seed on the server. Client-side saves skip remote transactions: `if (isChangeOrigin(transaction)) return`.
+- Read-only members: `editor.setEditable(false, false)`; controls follow without an update event.
+- Full guide: docs `guide/collaboration`.
+
 ## Provider
 
 `RichTextProvider({ editor, children })` renders the `.sparkwrite` root the stylesheet keys off and gives the editor to every control. Its `dark` prop is accepted for compatibility and ignored; use `themeActions.setTheme('dark')`.

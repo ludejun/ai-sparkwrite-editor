@@ -88,6 +88,13 @@ export {
   ExportWord,
   ImportWord,
   CodeView,
+  // Real-time co-editing (Yjs)
+  Collaboration,
+  CollaborationCaret,
+  renderCollaborationCaret,
+  isChangeOrigin,
+  YSyncProvider,
+  collaborationKitOptions,
 } from '@/core';
 
 export type {
@@ -125,6 +132,11 @@ export type {
   Recording,
   RecordingEntry,
   RecorderOptions,
+  CollaborationOptions,
+  CollaborationCaretOptions,
+  CollaborationUser,
+  YSyncStatus,
+  YSyncProviderEvents,
 } from '@/core';
 
 // Locale control for apps that register more languages; `useLocale` lives in the Vue context.
