@@ -300,6 +300,8 @@ const locale = {
   'editor.notice.tip': 'Tip',
   'editor.notice.remove': 'Remove Notice',
   'editor.details.tooltip': 'Toggle List',
+  'editor.details.expand': 'Expand',
+  'editor.details.collapse': 'Collapse',
   'editor.tableofcontents.tooltip': 'Table of Contents',
   'editor.tableofcontents.title': 'Table of Contents',
   'editor.tableofcontents.empty': 'Add headings to build the table of contents',

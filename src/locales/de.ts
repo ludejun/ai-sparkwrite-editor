@@ -234,6 +234,8 @@ const locale = {
   'editor.notice.tip': 'Tipp',
   'editor.notice.remove': 'Hinweis entfernen',
   'editor.details.tooltip': 'Aufklappbarer Block',
+  'editor.details.expand': 'Aufklappen',
+  'editor.details.collapse': 'Zuklappen',
   'editor.tableofcontents.tooltip': 'Inhaltsverzeichnis',
   'editor.tableofcontents.title': 'Inhaltsverzeichnis',
   'editor.tableofcontents.empty':

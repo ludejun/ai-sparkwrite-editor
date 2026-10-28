@@ -8,6 +8,8 @@ import { guessLanguage } from '@/extensions/CodeBlock/detect-language';
 import { LIST_LANG, languageLabel } from '@/extensions/CodeBlock/languages';
 import { cn } from '@/lib/utils';
 import { useLocale } from '@/locales';
+import { useEditableEditor } from '@/store/store';
+import { isEditorEditable } from '@/utils/editable';
 
 import type { NodeViewProps } from '@tiptap/react';
 
@@ -36,6 +38,8 @@ export function NodeViewCodeBlock({
   editor,
 }: NodeViewProps) {
   const { t } = useLocale();
+  // Node views do not re-render on `setEditable`; subscribe to it.
+  const editable = useEditableEditor(editor);
   const [languageOpen, setLanguageOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [copied, setCopied] = useState(false);
@@ -86,6 +90,10 @@ export function NodeViewCodeBlock({
     }
   }, [languageOpen]);
 
+  useEffect(() => {
+    if (!editable) setLanguageOpen(false);
+  }, [editable]);
+
   const onCopy = () => {
     navigator.clipboard.writeText(code);
     setCopied(true);
@@ -94,8 +102,13 @@ export function NodeViewCodeBlock({
   };
 
   const pick = (value: string) => {
-    updateAttributes({ language: value === AUTO_VALUE ? null : value });
+    if (isEditorEditable(editor))
+      updateAttributes({ language: value === AUTO_VALUE ? null : value });
     setLanguageOpen(false);
+  };
+
+  const onDelete = () => {
+    if (isEditorEditable(editor)) deleteNode();
   };
 
   return (
@@ -110,13 +123,14 @@ export function NodeViewCodeBlock({
         ))}
       </div>
 
-      {editor.isEditable ? (
-        <div
-          className='richtext-code-block__toolbar'
-          contentEditable={false}
-          data-open={languageOpen ? 'true' : 'false'}
-          onMouseDown={(event) => event.preventDefault()}
-        >
+      {/* Readers keep Copy; the language picker and Delete are for editing. */}
+      <div
+        className='richtext-code-block__toolbar'
+        contentEditable={false}
+        data-open={languageOpen ? 'true' : 'false'}
+        onMouseDown={(event) => event.preventDefault()}
+      >
+        {editable ? (
           <Popover modal onOpenChange={setLanguageOpen} open={languageOpen}>
             <PopoverTrigger asChild>
               <button
@@ -180,28 +194,30 @@ export function NodeViewCodeBlock({
               </div>
             </PopoverContent>
           </Popover>
+        ) : null}
 
-          <button
-            aria-label={t('editor.copyToClipboard')}
-            className={toolbarButtonClass}
-            onClick={onCopy}
-            title={t('editor.copyToClipboard')}
-            type='button'
-          >
-            {copied ? <Check size={14} /> : <Copy size={14} />}
-          </button>
+        <button
+          aria-label={t('editor.copyToClipboard')}
+          className={toolbarButtonClass}
+          onClick={onCopy}
+          title={t('editor.copyToClipboard')}
+          type='button'
+        >
+          {copied ? <Check size={14} /> : <Copy size={14} />}
+        </button>
 
+        {editable ? (
           <button
             aria-label={t('editor.delete')}
             className={toolbarButtonClass}
-            onClick={() => deleteNode()}
+            onClick={onDelete}
             title={t('editor.delete')}
             type='button'
           >
             <Trash2 size={14} />
           </button>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
     </NodeViewWrapper>
   );
 }

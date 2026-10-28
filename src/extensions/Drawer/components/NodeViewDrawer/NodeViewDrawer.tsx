@@ -3,6 +3,8 @@ import { throttle } from 'lodash-es';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { IMAGE_MAX_SIZE, IMAGE_MIN_SIZE, IMAGE_THROTTLE_WAIT_TIME } from '@/constants';
+import { useEditableEditor } from '@/store/store';
+import { isEditorEditable } from '@/utils/editable';
 import { clamp } from '@/utils/utils';
 
 import type { NodeViewProps } from '@tiptap/react';
@@ -26,6 +28,8 @@ export function NodeViewDrawer({
   getPos,
   selected,
 }: NodeViewProps) {
+  // Node views do not re-render on `setEditable`; subscribe to it.
+  const editable = useEditableEditor(editor);
   const [maxSize, setMaxSize] = useState<Size>({
     width: IMAGE_MAX_SIZE,
     height: IMAGE_MAX_SIZE,
@@ -108,6 +112,8 @@ export function NodeViewDrawer({
     e.preventDefault();
     e.stopPropagation();
 
+    if (!isEditorEditable(editor)) return;
+
     const originalWidth = originalSize.width;
     const originalHeight = originalSize.height;
     const aspectRatio = originalWidth / originalHeight;
@@ -158,6 +164,8 @@ export function NodeViewDrawer({
 
       const width = clamp(w + dx, IMAGE_MIN_SIZE, maxSize.width);
       const height = Math.round(width / ratio);
+
+      if (!isEditorEditable(editor)) return;
 
       updateAttributes({
         width,
@@ -246,7 +254,7 @@ export function NodeViewDrawer({
           style={imgAttrs.style}
         />
 
-        {editor.view.editable && (selected || resizing) && (
+        {editable && (selected || resizing) && (
           <div className='image-resizer'>
             {resizeDirections?.map((direction) => {
               return (

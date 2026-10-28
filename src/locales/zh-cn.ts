@@ -300,6 +300,8 @@ const locale = {
   'editor.notice.tip': '技巧',
   'editor.notice.remove': '移除提示块',
   'editor.details.tooltip': '折叠块',
+  'editor.details.expand': '展开',
+  'editor.details.collapse': '收起',
   'editor.tableofcontents.tooltip': '目录',
   'editor.tableofcontents.title': '目录',
   'editor.tableofcontents.empty': '添加标题以生成目录',

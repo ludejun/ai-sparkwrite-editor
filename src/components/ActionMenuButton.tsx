@@ -69,6 +69,8 @@ const ActionMenuButton = React.forwardRef<HTMLButtonElement, ActionMenuButtonPro
       <Tooltip>
         <TooltipTrigger asChild>
           <Comp
+            // Without visible text the tooltip names the button.
+            aria-label={title ? undefined : tooltip}
             className={cn(
               'richtext-h-[32px] richtext-min-w-0 richtext-max-w-32 richtext-overflow-hidden richtext-px-1.5 richtext-py-0',
               className

@@ -225,6 +225,8 @@ const locale = {
   'editor.notice.tip': 'Mẹo',
   'editor.notice.remove': 'Bỏ khung thông báo',
   'editor.details.tooltip': 'Khối thu gọn',
+  'editor.details.expand': 'Mở rộng',
+  'editor.details.collapse': 'Thu gọn',
   'editor.tableofcontents.tooltip': 'Mục lục',
   'editor.tableofcontents.title': 'Mục lục',
   'editor.tableofcontents.empty': 'Thêm tiêu đề để tạo mục lục',

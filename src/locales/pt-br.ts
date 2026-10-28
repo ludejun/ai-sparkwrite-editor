@@ -225,6 +225,8 @@ const locale = {
   'editor.notice.tip': 'Dica',
   'editor.notice.remove': 'Remover aviso',
   'editor.details.tooltip': 'Bloco recolhível',
+  'editor.details.expand': 'Expandir',
+  'editor.details.collapse': 'Recolher',
   'editor.tableofcontents.tooltip': 'Sumário',
   'editor.tableofcontents.title': 'Sumário',
   'editor.tableofcontents.empty': 'Adicione títulos para montar o sumário',

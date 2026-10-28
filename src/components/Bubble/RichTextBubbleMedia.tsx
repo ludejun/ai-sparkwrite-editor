@@ -7,6 +7,7 @@ import {
   getBubbleImageGif,
   getBubbleVideo,
 } from '@/components/Bubble/formatBubble';
+import { isNodeSelected } from '@/components/Bubble/nodeSelection';
 import { Image, ImageBlock } from '@/extensions/Image';
 import { ImageGif } from '@/extensions/ImageGif';
 import { Video } from '@/extensions/Video';
@@ -14,7 +15,6 @@ import { useLocale } from '@/locales';
 import { useEditorInstance } from '@/store/editor';
 import { useEditableEditor } from '@/store/store';
 
-import type { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import type { Editor } from '@tiptap/react';
 
 function ItemA({
@@ -50,37 +50,15 @@ function ItemA({
   );
 }
 
-function isImageNode(node: ProseMirrorNode) {
-  return node.type.name === Image.name || node.type.name === ImageBlock.name;
-}
-
-function isImageGifNode(node: ProseMirrorNode) {
-  return node.type.name === ImageGif.name;
-}
-
-function isVideoNode(node: ProseMirrorNode) {
-  return node.type.name === Video.name;
-}
-
 function RichTextBubbleImage() {
   const { lang, t } = useLocale();
   const editable = useEditableEditor();
   const editor = useEditorInstance();
 
-  const shouldShow = ({ editor }: { editor: Editor }) => {
-    const { selection } = editor.view.state;
-    const { $from, to } = selection;
-    let isImage = false;
-
-    editor.view.state.doc.nodesBetween($from.pos, to, (node: ProseMirrorNode) => {
-      if (isImageNode(node)) {
-        isImage = true;
-        return false; // Stop iteration if an image is found
-      }
-    });
-
-    return isImage;
-  };
+  // Only for the node itself: with Select All the range contains every
+  // media node, and this menu's actions would hit the whole range.
+  const shouldShow = ({ editor }: { editor: Editor }) =>
+    isNodeSelected(editor.state, [Image.name, ImageBlock.name]);
 
   const items = useMemo(() => {
     return getBubbleImage(editor, t);
@@ -116,20 +94,10 @@ function RichTextBubbleImageGif() {
   const editable = useEditableEditor();
   const editor = useEditorInstance();
 
-  const shouldShow = ({ editor }: { editor: Editor }) => {
-    const { selection } = editor.view.state;
-    const { $from, to } = selection;
-    let isImage = false;
-
-    editor.view.state.doc.nodesBetween($from.pos, to, (node: ProseMirrorNode) => {
-      if (isImageGifNode(node)) {
-        isImage = true;
-        return false; // Stop iteration if an image is found
-      }
-    });
-
-    return isImage;
-  };
+  // Only for the node itself: with Select All the range contains every
+  // media node, and this menu's actions would hit the whole range.
+  const shouldShow = ({ editor }: { editor: Editor }) =>
+    isNodeSelected(editor.state, [ImageGif.name]);
 
   const items = useMemo(() => {
     return getBubbleImageGif(editor, t);
@@ -165,20 +133,9 @@ function RichTextBubbleVideo() {
   const editable = useEditableEditor();
   const editor = useEditorInstance();
 
-  const shouldShow = ({ editor }: { editor: Editor }) => {
-    const { selection } = editor.view.state;
-    const { $from, to } = selection;
-    let isVideo = false;
-
-    editor.view.state.doc.nodesBetween($from.pos, to, (node: ProseMirrorNode) => {
-      if (isVideoNode(node)) {
-        isVideo = true;
-        return false;
-      }
-    });
-
-    return isVideo;
-  };
+  // Only for the node itself: with Select All the range contains every
+  // media node, and this menu's actions would hit the whole range.
+  const shouldShow = ({ editor }: { editor: Editor }) => isNodeSelected(editor.state, [Video.name]);
 
   const items = useMemo(() => {
     return getBubbleVideo(editor, t);

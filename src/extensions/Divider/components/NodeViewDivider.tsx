@@ -2,6 +2,8 @@ import { NodeViewWrapper } from '@tiptap/react';
 
 import { cn } from '@/lib/utils';
 import { useLocale } from '@/locales';
+import { useEditableEditor } from '@/store/store';
+import { isEditorEditable } from '@/utils/editable';
 
 import type { DividerOptions, DividerVariantOption } from '@/extensions/Divider/Divider';
 import type { NodeViewProps } from '@tiptap/react';
@@ -30,9 +32,14 @@ export function NodeViewDivider({
   const { variant, label } = node.attrs as { variant: string; label: string | null };
   const variants = (extension.options as DividerOptions).variants;
   const option = variants.find((item) => item.value === variant);
-  const editable = !!option?.editable && editor.isEditable;
+  const editorEditable = useEditableEditor(editor);
+  const editable = !!option?.editable && editorEditable;
   const showLabel = editable || (label && variant !== 'line');
   const placeholder = t('editor.divider.label.placeholder');
+
+  const update = (attributes: Record<string, unknown>) => {
+    if (isEditorEditable(editor)) updateAttributes(attributes);
+  };
 
   return (
     <NodeViewWrapper
@@ -54,7 +61,7 @@ export function NodeViewDivider({
             placeholder={placeholder}
             size={Math.max(1, (label ?? '').length || placeholder.length)}
             value={label ?? ''}
-            onChange={(event) => updateAttributes({ label: event.target.value || null })}
+            onChange={(event) => update({ label: event.target.value || null })}
             onKeyDown={(event) => {
               // Enter leaves the label and continues writing below the divider.
               if (event.key === 'Enter' || event.key === 'Escape') {
@@ -75,7 +82,7 @@ export function NodeViewDivider({
 
       {showLabel ? <hr /> : null}
 
-      {selected && editor.isEditable && variants.length > 1 ? (
+      {selected && editorEditable && variants.length > 1 ? (
         <div className='divider__picker' contentEditable={false} role='radiogroup'>
           {variants.map((item) => (
             <button
@@ -88,7 +95,7 @@ export function NodeViewDivider({
               type='button'
               onMouseDown={(event) => event.preventDefault()}
               onClick={() =>
-                updateAttributes({
+                update({
                   variant: item.value,
                   // A typed label only makes sense on a variant that shows one.
                   label: item.editable ? label : null,

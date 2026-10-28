@@ -6,6 +6,8 @@ import { IMAGE_MAX_SIZE, IMAGE_MIN_SIZE, IMAGE_THROTTLE_WAIT_TIME } from '@/cons
 import { CAPTION_CLASS } from '@/extensions/Image/caption';
 import { parseRotation } from '@/extensions/Image/Image';
 import { useLocale } from '@/locales';
+import { useEditableEditor } from '@/store/store';
+import { isEditorEditable } from '@/utils/editable';
 
 import type { NodeViewProps } from '@tiptap/react';
 
@@ -30,6 +32,8 @@ const ResizeDirection = {
 function ImageView(props: NodeViewProps) {
   const { updateAttributes } = props;
   const { t } = useLocale();
+  // Node views do not re-render on `setEditable`; subscribe to it.
+  const editable = useEditableEditor(props.editor);
 
   const [maxSize, setMaxSize] = useState<Size>({
     width: IMAGE_MAX_SIZE,
@@ -187,6 +191,10 @@ function ImageView(props: NodeViewProps) {
       return;
     }
 
+    if (!isEditorEditable(props.editor)) {
+      return;
+    }
+
     e.preventDefault();
     e.stopPropagation();
     const originalWidth = originalSize.width;
@@ -224,7 +232,7 @@ function ImageView(props: NodeViewProps) {
     () =>
       throttle((clientX: number, pointerId: number) => {
         const session = resizeSession.current;
-        if (!session || session.pointerId !== pointerId) {
+        if (!session || session.pointerId !== pointerId || !isEditorEditable(props.editor)) {
           return;
         }
 
@@ -236,7 +244,7 @@ function ImageView(props: NodeViewProps) {
           height: null,
         });
       }, IMAGE_THROTTLE_WAIT_TIME),
-    [maxSize.width, updateAttributes]
+    [maxSize.width, updateAttributes, props.editor]
   );
 
   function onPointerMove(e: React.PointerEvent<HTMLSpanElement>) {
@@ -279,6 +287,15 @@ function ImageView(props: NodeViewProps) {
     };
   }, [resizeToPointer]);
 
+  // Turned read-only mid-drag: the handles unmount, so end the session here.
+  useEffect(() => {
+    if (editable || !resizeSession.current) return;
+
+    resizeToPointer.cancel();
+    resizeSession.current = null;
+    setResizing(false);
+  }, [editable, resizeToPointer]);
+
   const resizeOb: ResizeObserver = useMemo(() => {
     return new ResizeObserver(() => getMaxSize());
   }, [getMaxSize]);
@@ -305,8 +322,8 @@ function ImageView(props: NodeViewProps) {
       }}
     >
       <span
-        data-drag-handle
-        draggable='true'
+        data-drag-handle={editable ? '' : undefined}
+        draggable={editable ? 'true' : 'false'}
         className={`image-view__body ${props?.selected ? 'image-view__body--focused' : ''} ${
           resizing ? 'image-view__body--resizing' : ''
         }`}
@@ -322,7 +339,7 @@ function ImageView(props: NodeViewProps) {
           style={imgAttrs.style}
         />
 
-        {props?.editor.view.editable && (props?.selected || resizing) && (
+        {editable && (props?.selected || resizing) && (
           <span className='image-resizer'>
             {resizeDirections?.map((direction) => {
               return (
@@ -343,9 +360,11 @@ function ImageView(props: NodeViewProps) {
       {hasCaption ? (
         <ImageCaption
           align={align}
-          editable={props?.editor.view.editable}
+          editable={editable}
           focusToken={captionFocusToken}
-          onCommit={(value) => updateAttributes({ caption: value })}
+          onCommit={(value) =>
+            isEditorEditable(props.editor) && updateAttributes({ caption: value })
+          }
           placeholder={t('editor.image.caption.placeholder')}
           value={caption}
         />

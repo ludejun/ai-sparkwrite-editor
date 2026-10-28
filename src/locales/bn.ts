@@ -234,6 +234,8 @@ const locale = {
   'editor.notice.tip': 'টিপ',
   'editor.notice.remove': 'নোটিশ বক্স সরান',
   'editor.details.tooltip': 'টগল ব্লক',
+  'editor.details.expand': 'প্রসারিত করুন',
+  'editor.details.collapse': 'সংকুচিত করুন',
   'editor.tableofcontents.tooltip': 'সূচিপত্র',
   'editor.tableofcontents.title': 'সূচিপত্র',
   'editor.tableofcontents.empty': 'সূচিপত্র তৈরি করতে শিরোনাম যোগ করুন',

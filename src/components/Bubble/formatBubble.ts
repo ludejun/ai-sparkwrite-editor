@@ -1,4 +1,3 @@
-import { deleteSelection } from '@tiptap/pm/commands';
 import {
   AlignCenterIcon,
   AlignLeftIcon,
@@ -10,6 +9,7 @@ import {
 
 import { ActionButton } from '@/components';
 import { ImageCaptionButton } from '@/components/Bubble/ImageCaptionButton';
+import { deleteSelectedNode } from '@/components/Bubble/nodeSelection';
 import { registerIcons } from '@/components/icons/icons';
 import { SizeL as SizeLIcon } from '@/components/icons/SizeL';
 import { SizeM as SizeMIcon } from '@/components/icons/SizeM';
@@ -312,10 +312,7 @@ export function getBubbleImage(editor: Editor, t: (path: string) => string): Bub
         editor,
         tooltip: t('editor.remove'),
         icon: 'Trash2',
-        action: () => {
-          const { state, dispatch } = editor.view;
-          deleteSelection(state, dispatch);
-        },
+        action: () => deleteSelectedNode(editor, [Image.name, ImageBlock.name]),
       },
     },
   ];
@@ -332,10 +329,7 @@ export function getBubbleImageGif(editor: Editor, t: (path: string) => string): 
         editor,
         tooltip: t('editor.remove'),
         icon: 'Trash2',
-        action: () => {
-          const { state, dispatch } = editor.view;
-          deleteSelection(state, dispatch);
-        },
+        action: () => deleteSelectedNode(editor, ['imageGif']),
       },
     },
   ];
@@ -363,10 +357,7 @@ export function getBubbleMermaid(editor: Editor, t: (path: string) => string): B
         editor,
         tooltip: t('editor.remove'),
         icon: 'Trash2',
-        action: () => {
-          const { state, dispatch } = editor.view;
-          deleteSelection(state, dispatch);
-        },
+        action: () => deleteSelectedNode(editor, ['mermaid']),
       },
     },
   ];
@@ -394,10 +385,7 @@ export function getBubbleDrawer(editor: Editor, t: (path: string) => string): Bu
         editor,
         tooltip: t('editor.remove'),
         icon: 'Trash2',
-        action: () => {
-          const { state, dispatch } = editor.view;
-          deleteSelection(state, dispatch);
-        },
+        action: () => deleteSelectedNode(editor, ['richTextDrawer']),
       },
     },
   ];
@@ -414,10 +402,7 @@ export function getBubbleVideo(editor: Editor, t: (path: string) => string): Bub
         editor,
         tooltip: t('editor.remove'),
         icon: 'Trash2',
-        action: () => {
-          const { state, dispatch } = editor.view;
-          deleteSelection(state, dispatch);
-        },
+        action: () => deleteSelectedNode(editor, ['video']),
       },
     },
   ];

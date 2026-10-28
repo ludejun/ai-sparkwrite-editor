@@ -11,7 +11,8 @@ import { useLocale } from '@/locales';
 import { useEditorInstance } from '@/store/editor';
 import { useEditableEditor } from '@/store/store';
 
-import type { Node as ProseMirrorNode } from '@tiptap/pm/model';
+import { isNodeSelected } from './nodeSelection';
+
 import type { Editor } from '@tiptap/react';
 
 function ItemA({
@@ -47,10 +48,6 @@ function ItemA({
   );
 }
 
-function isMermaidNode(node: ProseMirrorNode) {
-  return node.type.name === Mermaid.name;
-}
-
 export function RichTextBubbleMermaid() {
   const { lang, t } = useLocale();
   const editable = useEditableEditor();
@@ -63,20 +60,9 @@ export function RichTextBubbleMermaid() {
 
   const extension = useExtension(Mermaid.name);
 
-  const shouldShow = ({ editor }: { editor: Editor }) => {
-    const { selection } = editor.view.state;
-    const { $from, to } = selection;
-    let isMermaid = false;
-
-    editor.view.state.doc.nodesBetween($from.pos, to, (node: ProseMirrorNode) => {
-      if (isMermaidNode(node)) {
-        isMermaid = true;
-        return false; // Stop iteration if an mermaid is found
-      }
-    });
-
-    return isMermaid;
-  };
+  // Only for the node itself, not a range (Select All) that contains it.
+  const shouldShow = ({ editor }: { editor: Editor }) =>
+    isNodeSelected(editor.state, [Mermaid.name]);
 
   const items = useMemo(() => {
     return getBubbleMermaid(editor, t);

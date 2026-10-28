@@ -1,4 +1,4 @@
-import { AllSelection, PluginKey, TextSelection } from '@tiptap/pm/state';
+import { AllSelection, TextSelection } from '@tiptap/pm/state';
 import { useEditorState } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import { Check } from 'lucide-react';
@@ -23,6 +23,7 @@ import { useLocale } from '@/locales';
 import { useEditorInstance } from '@/store/editor';
 import { useEditableEditor } from '@/store/store';
 
+import { BUBBLE_TEXT_KEY } from './bubbleKeys';
 import { RichTextAIImprove } from './RichTextAIImprove';
 
 import type { Editor } from '@tiptap/react';
@@ -152,9 +153,6 @@ function DefaultButtonBubble() {
     </>
   );
 }
-
-/** Shared with the AI extension so opening a session can hide the bubble. */
-const BUBBLE_TEXT_KEY = new PluginKey('RichTextBubbleText');
 
 export function RichTextBubbleText({ buttonBubble }: RichTextBubbleTextProps) {
   const editor = useEditorInstance();

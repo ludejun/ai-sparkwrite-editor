@@ -224,6 +224,8 @@ const locale = {
   'editor.notice.tip': 'Tipp',
   'editor.notice.remove': 'Doboz eltávolítása',
   'editor.details.tooltip': 'Lenyitható blokk',
+  'editor.details.expand': 'Kibontás',
+  'editor.details.collapse': 'Összecsukás',
   'editor.tableofcontents.tooltip': 'Tartalomjegyzék',
   'editor.tableofcontents.title': 'Tartalomjegyzék',
   'editor.tableofcontents.empty': 'Adj hozzá címsorokat a tartalomjegyzék létrehozásához',

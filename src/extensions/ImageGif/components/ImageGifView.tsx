@@ -3,6 +3,8 @@ import { clamp, isNumber, throttle } from 'lodash-es';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { IMAGE_MAX_SIZE, IMAGE_MIN_SIZE, IMAGE_THROTTLE_WAIT_TIME } from '@/constants';
+import { useEditableEditor } from '@/store/store';
+import { isEditorEditable } from '@/utils/editable';
 
 import type { NodeViewProps } from '@tiptap/react';
 
@@ -20,6 +22,8 @@ const ResizeDirection = {
 
 function ImageGifView(props: NodeViewProps) {
   const { updateAttributes } = props;
+  // Node views do not re-render on `setEditable`; subscribe to it.
+  const editable = useEditableEditor(props.editor);
 
   const [maxSize, setMaxSize] = useState<Size>({
     width: IMAGE_MAX_SIZE,
@@ -105,6 +109,10 @@ function ImageGifView(props: NodeViewProps) {
       return;
     }
 
+    if (!isEditorEditable(props.editor)) {
+      return;
+    }
+
     e.preventDefault();
     e.stopPropagation();
     const originalWidth = originalSize.width;
@@ -142,7 +150,7 @@ function ImageGifView(props: NodeViewProps) {
     () =>
       throttle((clientX: number, pointerId: number) => {
         const session = resizeSession.current;
-        if (!session || session.pointerId !== pointerId) {
+        if (!session || session.pointerId !== pointerId || !isEditorEditable(props.editor)) {
           return;
         }
 
@@ -154,7 +162,7 @@ function ImageGifView(props: NodeViewProps) {
           height: null,
         });
       }, IMAGE_THROTTLE_WAIT_TIME),
-    [maxSize.width, updateAttributes]
+    [maxSize.width, updateAttributes, props.editor]
   );
 
   function onPointerMove(e: React.PointerEvent<HTMLSpanElement>) {
@@ -232,7 +240,7 @@ function ImageGifView(props: NodeViewProps) {
           style={imgAttrs.style}
         />
 
-        {props?.editor.view.editable && (props?.selected || resizing) && (
+        {editable && (props?.selected || resizing) && (
           <div className='image-resizer'>
             {resizeDirections?.map((direction) => {
               return (

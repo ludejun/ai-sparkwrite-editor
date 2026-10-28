@@ -225,6 +225,8 @@ const locale = {
   'editor.notice.tip': 'Vinkki',
   'editor.notice.remove': 'Poista huomiolaatikko',
   'editor.details.tooltip': 'Laajennettava lohko',
+  'editor.details.expand': 'Laajenna',
+  'editor.details.collapse': 'Tiivistä',
   'editor.tableofcontents.tooltip': 'Sisällysluettelo',
   'editor.tableofcontents.title': 'Sisällysluettelo',
   'editor.tableofcontents.empty': 'Lisää otsikoita sisällysluettelon luomiseksi',

@@ -159,9 +159,11 @@ export const FormatPainter = /* @__PURE__ */ Extension.create<FormatPainterOptio
 
                 const { state } = view;
                 const { selection } = state;
-                const tr = selection.empty
-                  ? state.tr
-                  : applyMarksToSelection(state.tr, state, marks);
+                // Armed, then turned read-only: end without painting.
+                const tr =
+                  selection.empty || !view.editable
+                    ? state.tr
+                    : applyMarksToSelection(state.tr, state, marks);
 
                 view.dispatch(tr.setMeta(formatPainterPluginKey, { type: 'end' }));
               };

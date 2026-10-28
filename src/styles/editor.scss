@@ -304,6 +304,27 @@
   .ProseMirror {
     caret-color: hsl(var(--richtext-text-foreground)) !important;
   }
+
+  /* CodeView's source editor, shown in place of the (hidden) document. */
+  .tiptap-code-view {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 180px;
+    field-sizing: content;
+    padding: 16px;
+    border: none;
+    outline: none;
+    resize: vertical;
+    background: transparent;
+    color: inherit;
+    font-family:
+      ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    tab-size: 2;
+  }
 }
 
 .bg-item-active.bg-item-active {

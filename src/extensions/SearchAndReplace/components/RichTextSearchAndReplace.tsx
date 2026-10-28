@@ -13,11 +13,15 @@ import {
   Checkbox,
 } from '@/components';
 import { registerIcons } from '@/components/icons/icons';
-import { SearchAndReplace } from '@/extensions/SearchAndReplace/SearchAndReplace';
+import {
+  SearchAndReplace,
+  formatSearchResult,
+} from '@/extensions/SearchAndReplace/SearchAndReplace';
 import { useActive } from '@/hooks/useActive';
 import { useButtonProps } from '@/hooks/useButtonProps';
 import { useLocale } from '@/locales';
 import { useEditorInstance } from '@/store/editor';
+import { isEditorEditable } from '@/utils/editable';
 
 // Icons this module (and its extension's `button()` options) resolves by name.
 registerIcons({
@@ -50,9 +54,8 @@ export function RichTextSearchAndReplace() {
   const [result, setResult] = useState('');
 
   const updateResult = () => {
-    setResult(
-      `${editor?.storage?.searchAndReplace?.resultIndex + 1}/${editor?.storage?.searchAndReplace?.results.length}`
-    );
+    const storage = editor?.storage?.searchAndReplace;
+    setResult(formatSearchResult(storage?.resultIndex ?? 0, storage?.results.length ?? 0));
   };
 
   useEffect(() => {
@@ -110,6 +113,7 @@ export function RichTextSearchAndReplace() {
   }, [caseSensitive]);
 
   const replace = () => {
+    if (!isEditorEditable(editor)) return;
     editor?.commands?.replace?.();
     goToSelection();
   };
@@ -128,21 +132,43 @@ export function RichTextSearchAndReplace() {
     setSearchTerm('');
     setReplaceTerm('');
 
+    // The editor keeps its own term: without this the highlights stay.
     editor?.commands?.resetIndex?.();
+    editor?.commands?.setSearchTerm?.('');
     updateResult();
   };
 
   const replaceAll = () => {
+    if (!isEditorEditable(editor)) return;
     editor?.commands?.replaceAll?.();
-    setResult('0/0');
+    updateResult();
   };
+
+  // Highlights belong to the open panel: closing removes them, reopening
+  // searches the kept term again.
+  const onOpenChange = (open: boolean) => {
+    setVisible(open);
+
+    if (!editor) return;
+
+    if (open) {
+      if (searchTerm.trim()) updateSearchReplace(true);
+    } else {
+      editor.commands.setSearchTerm?.('');
+      updateResult();
+    }
+  };
+
+  useEffect(() => {
+    if (disabled && visible) onOpenChange(false);
+  }, [disabled]);
 
   if (!buttonProps) {
     return <></>;
   }
 
   return (
-    <Popover onOpenChange={setVisible} open={visible}>
+    <Popover onOpenChange={onOpenChange} open={visible}>
       <PopoverTrigger asChild disabled={disabled}>
         <ActionButton
           action={onAction}

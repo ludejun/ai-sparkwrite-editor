@@ -30,6 +30,11 @@ const updateView = (
   dispatch: ((tr: import('@tiptap/pm/state').Transaction) => void) | undefined
 ) => dispatch?.(state.tr);
 
+/** The counter next to the search field: `2/5`, and `0/0` when nothing matches. */
+export function formatSearchResult(resultIndex: number, total: number): string {
+  return total ? `${Math.min(Math.max(resultIndex, 0), total - 1) + 1}/${total}` : '0/0';
+}
+
 function getRegex(s: string, disableRegex: boolean, caseSensitive: boolean): RegExp {
   return RegExp(
     disableRegex ? s.replace(/[$()*+.?[\\\]^{|}]/g, String.raw`\$&`) : s,

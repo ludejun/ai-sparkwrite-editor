@@ -6,7 +6,6 @@ import { ReactBusProvider } from '@/components/ReactBus';
 import SlashDialogTrigger from '@/components/SlashDialogTrigger/SlashDialogTrigger';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { RESET_CSS } from '@/constants/resetCSS';
-import { EditorEditableReactive } from '@/store/EditorEditableReactive';
 import { ThemeColorReactive } from '@/store/ThemeColorReactive';
 import { removeCSS, updateCSS } from '@/utils/dynamicCSS';
 
@@ -45,8 +44,6 @@ export function RichTextProvider({ editor, children }: IProviderRichTextProps) {
           <TooltipProvider delayDuration={0} disableHoverableContent>
             {children}
           </TooltipProvider>
-
-          <EditorEditableReactive editor={editor} />
 
           <SlashDialogTrigger editorId={id} />
           <ThemeColorReactive />

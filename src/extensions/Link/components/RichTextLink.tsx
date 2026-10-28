@@ -1,5 +1,5 @@
 import { LinkIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { ActionButton, IconComponent, Popover, PopoverContent, PopoverTrigger } from '@/components';
 import { registerIcons } from '@/components/icons/icons';
@@ -17,9 +17,24 @@ export function RichTextLink() {
   const editor = useEditorInstance();
   const buttonProps = useButtonProps(Link.name);
 
-  const { isActive, icon, tooltip, target, action } = buttonProps?.componentProps ?? {};
+  const { isActive, icon, tooltip, shortcutKeys, action } = buttonProps?.componentProps ?? {};
 
   const { dataState, editorDisabled, update } = useToggleActive(isActive);
+
+  // Mod-K opens this form when no link bubble is mounted to take it.
+  useEffect(() => {
+    const storage = editor?.storage.link;
+
+    if (!storage || !buttonProps) return;
+
+    const open = () => setOpen(true);
+
+    storage.openToolbarEditor = open;
+
+    return () => {
+      if (storage.openToolbarEditor === open) storage.openToolbarEditor = null;
+    };
+  }, [editor, buttonProps]);
 
   function onSetLink(link: string, text?: string, openInNewTab?: boolean) {
     if (editorDisabled) return;
@@ -42,13 +57,18 @@ export function RichTextLink() {
         data-state={dataState ? 'on' : 'off'} // active background control
         disabled={editorDisabled}
       >
-        <ActionButton dataState={dataState} disabled={editorDisabled} tooltip={tooltip}>
+        <ActionButton
+          dataState={dataState}
+          disabled={editorDisabled}
+          shortcutKeys={shortcutKeys}
+          tooltip={tooltip}
+        >
           <IconComponent name={icon ?? ''} />
         </ActionButton>
       </PopoverTrigger>
 
       <PopoverContent align='start' className='richtext-w-full' hideWhenDetached side='bottom'>
-        <LinkEditBlock editor={editor} onSetLink={onSetLink} open={open} target={target} />
+        <LinkEditBlock editor={editor} onSetLink={onSetLink} open={open} />
       </PopoverContent>
     </Popover>
   );

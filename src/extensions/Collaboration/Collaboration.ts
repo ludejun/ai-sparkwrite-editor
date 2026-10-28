@@ -6,6 +6,8 @@ import {
   CollaborationCaret as TiptapCollaborationCaret,
   type CollaborationCaretOptions as TiptapCollaborationCaretOptions,
 } from '@tiptap/extension-collaboration-caret';
+import { Plugin, PluginKey } from '@tiptap/pm/state';
+import { yUndoPluginKey } from '@tiptap/y-tiptap';
 
 import type { ButtonViewParams, GeneralOptions } from '@/types';
 
@@ -22,7 +24,51 @@ export interface CollaborationOptions
  * The document must come from the same `yjs` copy the editor uses (the kit
  * keeps `yjs` external, so the host's bundler has to resolve one copy).
  */
+/** Meta on the empty transaction that tells undo / redo buttons the Yjs stacks changed. */
+export const undoStackChangedKey = new PluginKey('collaborationUndoStack');
+
+const UNDO_STACK_EVENTS = ['stack-item-added', 'stack-item-popped', 'stack-cleared'] as const;
+
+/**
+ * `Y.UndoManager` updates its stacks after the transaction that changed the
+ * document has been dispatched, so a toolbar that re-reads `can().redo()` on
+ * that transaction sees the old stacks (Redo stays disabled after Undo).
+ * Follow the stacks themselves and dispatch an empty transaction when they move.
+ */
+function undoStackPlugin() {
+  return new Plugin({
+    key: undoStackChangedKey,
+    view(view) {
+      const undoManager = yUndoPluginKey.getState(view.state)?.undoManager;
+      let queued = false;
+
+      if (!undoManager) return {};
+
+      // Deferred: the stacks move inside a Yjs transaction that may itself run
+      // while ProseMirror is applying a transaction.
+      const notify = () => {
+        if (queued) return;
+        queued = true;
+        queueMicrotask(() => {
+          queued = false;
+          if (!view.isDestroyed) view.dispatch(view.state.tr.setMeta(undoStackChangedKey, true));
+        });
+      };
+
+      UNDO_STACK_EVENTS.forEach((event) => undoManager.on(event, notify));
+
+      return {
+        destroy: () => UNDO_STACK_EVENTS.forEach((event) => undoManager.off(event, notify)),
+      };
+    },
+  });
+}
+
 export const Collaboration = /* @__PURE__ */ TiptapCollaboration.extend<CollaborationOptions>({
+  addProseMirrorPlugins() {
+    return [...(this.parent?.() ?? []), undoStackPlugin()];
+  },
+
   // @ts-expect-error the parent options are complete; `button` adds the toolbar metadata
   addOptions() {
     return {

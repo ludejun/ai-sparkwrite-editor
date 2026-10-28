@@ -14,6 +14,7 @@ import {
 } from 'vue';
 
 import { formatMessage, getLocaleState, subscribeLocale } from '@/locales/store';
+import { watchEditable } from '@/utils/editable';
 
 import type { Editor } from '@tiptap/core';
 
@@ -79,10 +80,13 @@ export function useEditorState<T>(selector: (editor: Editor) => T, fallback: T):
       current.on('transaction', update);
       current.on('focus', update);
       current.on('blur', update);
+      // `setEditable(x, false)` runs no transaction.
+      const stopEditable = watchEditable(current, update);
       detach = () => {
         current.off('transaction', update);
         current.off('focus', update);
         current.off('blur', update);
+        stopEditable();
       };
     },
     { immediate: true }

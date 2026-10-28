@@ -12,6 +12,7 @@ import {
   Trash2Icon,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import {
   DropdownMenu,
@@ -34,6 +35,7 @@ import { Table } from '@/extensions/Table';
 import { useLocale } from '@/locales';
 import { useEditorInstance } from '@/store/editor';
 import { useEditableEditor } from '@/store/store';
+import { isEditorEditable } from '@/utils/editable';
 import { getShortcutKeys } from '@/utils/plateform';
 
 // Icons this module (and its extension's `button()` options) resolves by name.
@@ -95,12 +97,16 @@ function RichTextBubbleTable({ hiddenActions = [] }: RichTextBubbleTableProps) {
 
   useEffect(() => {
     if (!editable) {
+      // A menu left open must not come back when the editor turns editable again.
+      setMenuPosition(null);
       return;
     }
 
     const dom = editor.view.dom;
 
     const onContextMenu = (event: MouseEvent) => {
+      if (!isEditorEditable(editor)) return;
+
       const cell = (event.target as HTMLElement | null)?.closest?.('td, th');
 
       if (!cell || !dom.contains(cell)) {
@@ -131,10 +137,10 @@ function RichTextBubbleTable({ hiddenActions = [] }: RichTextBubbleTableProps) {
 
   const run = useCallback(
     (command: () => void) => () => {
-      command();
+      if (isEditorEditable(editor)) command();
       setMenuPosition(null);
     },
-    []
+    [editor]
   );
 
   const onOpenChange = useCallback((open: boolean) => {
@@ -230,13 +236,24 @@ function RichTextBubbleTable({ hiddenActions = [] }: RichTextBubbleTableProps) {
 
   return (
     <DropdownMenu onOpenChange={onOpenChange} open={!!menuPosition}>
-      <DropdownMenuTrigger asChild>
-        <span
-          aria-hidden
-          className='richtext-pointer-events-none richtext-fixed richtext-size-0'
-          style={{ left: menuPosition?.x ?? 0, top: menuPosition?.y ?? 0 }}
-        />
-      </DropdownMenuTrigger>
+      {/* In the body: inside the editor a transformed or contained ancestor
+          would make `fixed` relative to it and misplace the menu. */}
+      {createPortal(
+        <DropdownMenuTrigger asChild>
+          <span
+            aria-hidden
+            style={{
+              position: 'fixed',
+              width: 0,
+              height: 0,
+              pointerEvents: 'none',
+              left: menuPosition?.x ?? 0,
+              top: menuPosition?.y ?? 0,
+            }}
+          />
+        </DropdownMenuTrigger>,
+        editor.view.dom.ownerDocument.body
+      )}
 
       <DropdownMenuContent align='start' className='richtext-w-64' side='bottom' sideOffset={0}>
         {items.map((item) => {
@@ -289,6 +306,7 @@ function RichTextBubbleTable({ hiddenActions = [] }: RichTextBubbleTableProps) {
                     <input
                       className='richtext-h-5 richtext-w-7 richtext-cursor-pointer richtext-border-0 richtext-bg-transparent richtext-p-0'
                       onChange={(event) =>
+                        isEditorEditable(editor) &&
                         editor.chain().focus().setTableCellBackground(event.target.value).run()
                       }
                       type='color'

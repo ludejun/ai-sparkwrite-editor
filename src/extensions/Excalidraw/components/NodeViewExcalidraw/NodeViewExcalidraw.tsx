@@ -24,7 +24,7 @@ const INHERIT_SIZE_STYLE = { width: '100%', height: '100%', maxWidth: '100%' };
 
 function NodeViewExcalidraw({ editor, node, updateAttributes }: NodeViewProps) {
   const exportToSvgRef = useRef<typeof import('@excalidraw/excalidraw').exportToSvg | null>(null);
-  const isEditable = useEditableEditor();
+  const isEditable = useEditableEditor(editor);
   const isActive = editor.isActive(Excalidraw.name);
   // const { width: maxWidth } = getEditorContainerDOMSize(editor)
   const { data, width, height } = node.attrs;
