@@ -13,12 +13,14 @@ import { RichTextProvider } from '../src/components/RichTextProvider';
 import { Bold, RichTextBold } from '../src/extensions/Bold';
 import { CodeBlock } from '../src/extensions/CodeBlock';
 import { CodeView } from '../src/extensions/CodeView';
-import { Collaboration } from '../src/extensions/Collaboration/Collaboration';
+import { Collaboration, isChangeOrigin } from '../src/extensions/Collaboration/Collaboration';
+import { YSyncProvider, collaborationKitOptions } from '../src/extensions/Collaboration/provider';
 import { Details } from '../src/extensions/Details';
 import { History, RichTextRedo, RichTextUndo } from '../src/extensions/History';
 import { Image } from '../src/extensions/Image';
 import { Link } from '../src/extensions/Link';
 import { Table } from '../src/extensions/Table';
+import { RichTextKit } from '../src/kit/react';
 import { useEditableEditor } from '../src/store/store';
 
 /*
@@ -298,6 +300,57 @@ async function collaborativeUndo() {
   collab.destroy();
 }
 
+// The setup the collaboration guide documents: the kit plus collaborationKitOptions,
+// two clients whose providers are wired to each other in place of a socket.
+async function collaborationKit() {
+  const client = (name: string, color: string) => {
+    const doc = new Y.Doc();
+    const provider = new YSyncProvider(doc);
+    const remote: boolean[] = [];
+    const editor = new Editor({
+      element: document.querySelector(`#kit-${name}`) as HTMLElement,
+      extensions: [
+        RichTextKit.configure({
+          ...collaborationKitOptions({ document: doc, provider, user: { name, color } }),
+        }),
+      ],
+      onUpdate: ({ transaction }) => remote.push(isChangeOrigin(transaction)),
+    });
+    return { doc, provider, editor, remote };
+  };
+  const a = client('ada', '#7c3aed');
+  const b = client('bob', '#16a34a');
+  a.provider.connect((data) => b.provider.receive(data));
+  b.provider.connect((data) => a.provider.receive(data));
+  a.provider.connect((data) => b.provider.receive(data));
+  await waitFor(() => a.provider.synced && b.provider.synced, 'both kit clients sync');
+
+  const names = a.editor.extensionManager.extensions.map((extension) => extension.name);
+  check(
+    names.includes('collaboration') &&
+      names.includes('collaborationCaret') &&
+      !names.includes('undoRedo'),
+    'the kit swaps history for collaboration'
+  );
+
+  a.editor.commands.insertContent('from ada');
+  await waitFor(() => b.editor.getText() === 'from ada', 'an edit reaches the other client');
+  check(a.remote.at(-1) === false, 'isChangeOrigin is false for a local edit');
+  check(b.remote.at(-1) === true, 'isChangeOrigin is true for the remote one');
+
+  a.editor.commands.focus('end');
+  await waitFor(
+    () => b.editor.view.dom.querySelector('.richtext-collab-caret__label')?.textContent === 'ada',
+    'the remote caret shows the user name'
+  );
+
+  for (const c of [a, b]) {
+    c.editor.destroy();
+    c.provider.destroy();
+    c.doc.destroy();
+  }
+}
+
 async function run() {
   await editableState();
   await selectAllAndMedia();
@@ -306,6 +359,7 @@ async function run() {
   await tableMenu();
   await details();
   await collaborativeUndo();
+  await collaborationKit();
   document.querySelector('#results')!.textContent = `${results.join('\n')}\nALL PASS`;
 }
 

@@ -105,6 +105,10 @@ export function getLocaleConfig(lang: string) {
           link: `${urlPrefix}/guide/frameworks`,
         },
         {
+          text: t('Collaboration'),
+          link: `${urlPrefix}/guide/collaboration`,
+        },
+        {
           text: t('Customization'),
           link: `${urlPrefix}/guide/customization`,
         },

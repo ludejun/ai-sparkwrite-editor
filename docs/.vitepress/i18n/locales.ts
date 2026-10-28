@@ -9,6 +9,7 @@ export const zh: Record<string, string> = {
   Toolbar: '工具栏',
   Features: '功能一览',
   Frameworks: '框架支持',
+  Collaboration: '协作编辑',
   Customization: '自定义',
   'Bundle size': '包体积',
   'Bubble Menu': '气泡菜单',

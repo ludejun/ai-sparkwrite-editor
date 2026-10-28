@@ -42,6 +42,7 @@
 - 50+ 扩展：标题、列表、表格、带语言识别的代码块、可裁剪加题注的图片、分割线、分栏、提示块、折叠块、Katex、Mermaid、Excalidraw、视频、iframe、附件、emoji、提及、目录、搜索替换、Word/PDF/Markdown 导入导出。
 - 从 Word、Google Docs、Excel、代码编辑器粘贴保持格式。
 - 16 种语言按需加载，配套中日韩、天城文、孟加拉文字体。
+- 基于 Yjs 的实时协作：共享文档、远端光标、各自独立的撤销，传输层随意。
 - 录制并回放一次书写过程。
 - 每个框架一个入口，`RichTextKit` 一行注册全部功能；打包器按需 tree-shake，只打包你真正用到的功能。
 - 带前缀的 Tailwind 类和少量 CSS 变量，融入你的设计系统。
@@ -122,9 +123,46 @@ Kit 的每个选项对应一个功能：`false` 去掉它（按钮和菜单一�
 
 你的 `/api/ai` 收到 `{ messages, systemPrompt, stream }`，返回 `{ text }` 或一串 `data: {"text"}` 事件即可——接口约定和十行的示例服务见 [AI 文档](https://ludejun.github.io/ai-sparkwrite-editor/zh/extensions/AI/)。
 
+## 实时协作
+
+多人同时编辑一篇文档，能看到彼此的光标，撤销只撤自己的。编辑器通过 [Yjs](https://yjs.dev) 同步；`YSyncProvider` 在你自己持有的 socket 上收发 `y-websocket` 格式的报文，`collaborationKitOptions` 把它接进 kit（kit 随即去掉自带的历史记录，改用 Yjs 的撤销管理器）：
+
+```bash
+pnpm add yjs
+```
+
+```tsx
+import { useEditor } from '@tiptap/react';
+import { RichTextKit, YSyncProvider, collaborationKitOptions } from 'ai-sparkwrite-editor';
+import * as Y from 'yjs';
+
+const doc = new Y.Doc();
+const provider = new YSyncProvider(doc);
+const socket = new WebSocket('wss://example.com/collab/note-42');
+socket.binaryType = 'arraybuffer';
+socket.onopen = () => provider.connect((data) => socket.send(data));
+socket.onmessage = (event) => provider.receive(event.data);
+socket.onclose = () => provider.disconnect();
+
+const editor = useEditor({
+  // 不传 `content`：文档内容就是 Y.Doc
+  extensions: [
+    RichTextKit.configure({
+      ...collaborationKitOptions({
+        document: doc,
+        provider,
+        user: { name: '张三', color: '#7c3aed' },
+      }),
+    }),
+  ],
+});
+```
+
+Vue 的 kit 用同样的选项；`y-websocket`、Hocuspocus 的 provider 也能同样接入。完整的 React / Vue 组件写法、如何保存而不重复保存远端改动（`isChangeOrigin`）、只读成员，以及自建服务端要处理的报文格式，见[协作编辑指南](https://ludejun.github.io/ai-sparkwrite-editor/zh/guide/collaboration)。
+
 ## 文档
 
-全部在文档站：**[ludejun.github.io/ai-sparkwrite-editor](https://ludejun.github.io/ai-sparkwrite-editor/)**——[快速开始](https://ludejun.github.io/ai-sparkwrite-editor/guide/getting-started)、[AI](https://ludejun.github.io/ai-sparkwrite-editor/extensions/AI/)、[全部功能与导入路径](https://ludejun.github.io/ai-sparkwrite-editor/guide/features)、[多框架](https://ludejun.github.io/ai-sparkwrite-editor/guide/frameworks)、[自定义](https://ludejun.github.io/ai-sparkwrite-editor/guide/customization)、[体积](https://ludejun.github.io/ai-sparkwrite-editor/guide/bundle-size)。先去 **[在线 Playground](https://ludejun.github.io/ai-sparkwrite-editor/playground/)** 试：内置演示模型，不配密钥也能走完所有 AI 流程。
+全部在文档站：**[ludejun.github.io/ai-sparkwrite-editor](https://ludejun.github.io/ai-sparkwrite-editor/)**——[快速开始](https://ludejun.github.io/ai-sparkwrite-editor/guide/getting-started)、[AI](https://ludejun.github.io/ai-sparkwrite-editor/extensions/AI/)、[全部功能与导入路径](https://ludejun.github.io/ai-sparkwrite-editor/guide/features)、[多框架](https://ludejun.github.io/ai-sparkwrite-editor/guide/frameworks)、[协作编辑](https://ludejun.github.io/ai-sparkwrite-editor/zh/guide/collaboration)、[自定义](https://ludejun.github.io/ai-sparkwrite-editor/guide/customization)、[体积](https://ludejun.github.io/ai-sparkwrite-editor/guide/bundle-size)。先去 **[在线 Playground](https://ludejun.github.io/ai-sparkwrite-editor/playground/)** 试：内置演示模型，不配密钥也能走完所有 AI 流程。
 
 ## 配合 AI 编程助手使用
 

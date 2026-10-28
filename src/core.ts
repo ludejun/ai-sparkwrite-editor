@@ -228,6 +228,7 @@ export {
   Collaboration,
   CollaborationCaret,
   renderCollaborationCaret,
+  isChangeOrigin,
 } from '@/extensions/Collaboration/Collaboration';
 export type {
   CollaborationOptions,

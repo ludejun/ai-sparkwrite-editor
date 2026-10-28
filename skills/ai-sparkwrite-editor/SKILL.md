@@ -25,7 +25,7 @@ Never copy the library's private `@/` aliases into consumer code and never guess
 
 | Task                                                                                                                                                                      | Reference                                             |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| Install, kit vs assembled, SSR, save/load, read-only, kit option list                                                                                                     | [quickstart.md](references/quickstart.md)             |
+| Install, kit vs assembled, SSR, save/load, read-only, collaboration, kit option list                                                                                      | [quickstart.md](references/quickstart.md)             |
 | Every export, entry point, companion node, bubble menu, React-only vs Vue                                                                                                 | [extension-map.md](references/extension-map.md)       |
 | **AI backend** (`endpoint` request/response, streaming, server samples, direct provider calls, `generate`)                                                                | [ai-backend.md](references/ai-backend.md)             |
 | Uploads (image/video/attachment/Word import), deleting orphaned images, embeds, notices, slash menu, mentions, export, locale, theme, custom toolbar and blocks, recorder | [feature-recipes.md](references/feature-recipes.md)   |

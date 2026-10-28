@@ -42,6 +42,7 @@
 - 50+ extensions: headings, lists, tables, code blocks with language detection, images with cropping and captions, dividers, columns, callouts, notices, details, Katex, Mermaid, Excalidraw, video, iframe, attachments, emoji, mentions, table of contents, search & replace, Word/PDF/Markdown import and export.
 - Paste from Word, Google Docs, Excel and code editors keeps its shape.
 - 16 languages, loaded on demand, with matching CJK, Devanagari and Bengali fonts.
+- Real-time collaboration over Yjs: shared document, remote carets, per-user undo, any transport.
 - Record and replay a writing session as timestamped steps.
 - One import per framework, `RichTextKit` for everything at once; bundlers tree-shake the rest, so you only ship the features you reference.
 - Prefixed Tailwind classes and a handful of CSS variables, so it fits your design system.
@@ -122,9 +123,46 @@ Shape the kit with one option per feature: `false` leaves it out (button and men
 
 Your `/api/ai` receives `{ messages, systemPrompt, stream }` and answers `{ text }` or a stream of `data: {"text"}` events — the contract and a ten-line server are in the [AI docs](https://ludejun.github.io/ai-sparkwrite-editor/extensions/AI/).
 
+## Real-time collaboration
+
+Several people in one document, with each other's carets and their own undo. The editor syncs through [Yjs](https://yjs.dev); `YSyncProvider` speaks the `y-websocket` wire format over a socket you own, and `collaborationKitOptions` wires it into the kit (which then drops its own history for the Yjs undo manager):
+
+```bash
+pnpm add yjs
+```
+
+```tsx
+import { useEditor } from '@tiptap/react';
+import { RichTextKit, YSyncProvider, collaborationKitOptions } from 'ai-sparkwrite-editor';
+import * as Y from 'yjs';
+
+const doc = new Y.Doc();
+const provider = new YSyncProvider(doc);
+const socket = new WebSocket('wss://example.com/collab/note-42');
+socket.binaryType = 'arraybuffer';
+socket.onopen = () => provider.connect((data) => socket.send(data));
+socket.onmessage = (event) => provider.receive(event.data);
+socket.onclose = () => provider.disconnect();
+
+const editor = useEditor({
+  // no `content`: the Y.Doc is the content
+  extensions: [
+    RichTextKit.configure({
+      ...collaborationKitOptions({
+        document: doc,
+        provider,
+        user: { name: 'Ada', color: '#7c3aed' },
+      }),
+    }),
+  ],
+});
+```
+
+The same options work on the Vue kit, and `y-websocket` or Hocuspocus providers plug in the same way. React and Vue components, saving without echoing remote edits (`isChangeOrigin`), read-only members, and the frame format for your own server are in the [collaboration guide](https://ludejun.github.io/ai-sparkwrite-editor/guide/collaboration).
+
 ## Documentation
 
-Everything is on the docs site: **[ludejun.github.io/ai-sparkwrite-editor](https://ludejun.github.io/ai-sparkwrite-editor/)** — [getting started](https://ludejun.github.io/ai-sparkwrite-editor/guide/getting-started), [AI](https://ludejun.github.io/ai-sparkwrite-editor/extensions/AI/), [every feature and its import path](https://ludejun.github.io/ai-sparkwrite-editor/guide/features), [frameworks](https://ludejun.github.io/ai-sparkwrite-editor/guide/frameworks), [customization](https://ludejun.github.io/ai-sparkwrite-editor/guide/customization), [bundle size](https://ludejun.github.io/ai-sparkwrite-editor/guide/bundle-size). Try it first in the **[live playground](https://ludejun.github.io/ai-sparkwrite-editor/playground/)**, which answers with a demo model so every AI flow works without a key.
+Everything is on the docs site: **[ludejun.github.io/ai-sparkwrite-editor](https://ludejun.github.io/ai-sparkwrite-editor/)** — [getting started](https://ludejun.github.io/ai-sparkwrite-editor/guide/getting-started), [AI](https://ludejun.github.io/ai-sparkwrite-editor/extensions/AI/), [every feature and its import path](https://ludejun.github.io/ai-sparkwrite-editor/guide/features), [frameworks](https://ludejun.github.io/ai-sparkwrite-editor/guide/frameworks), [collaboration](https://ludejun.github.io/ai-sparkwrite-editor/guide/collaboration), [customization](https://ludejun.github.io/ai-sparkwrite-editor/guide/customization), [bundle size](https://ludejun.github.io/ai-sparkwrite-editor/guide/bundle-size). Try it first in the **[live playground](https://ludejun.github.io/ai-sparkwrite-editor/playground/)**, which answers with a demo model so every AI flow works without a key.
 
 ## Using with AI coding agents
 
