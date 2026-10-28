@@ -4,7 +4,7 @@ layout: home
 hero:
   name: ai-sparkwrite-editor
   text: 告诉它你想要什么，它就把内容写进页面。
-  tagline: 一个基于 Tiptap 的 AI 优先编辑器 SDK。段落、表格、代码、任务列表、公式和图表均由模型生成，并以真实、可编辑的块落入文档——支持流式输出、可撤销，覆盖 16 种语言。React 与 Vue 共享同一个框架无关的核心。
+  tagline: 一个基于 Tiptap 的 AI 优先编辑器 SDK。段落、表格、代码、任务列表、公式和图表均由模型生成，并以真实、可编辑的块落入文档——支持流式输出、可撤销，覆盖 16 种语言，并支持基于 Yjs 的实时协作。React 与 Vue 共享同一个框架无关的核心。
   image:
     src: /logo.svg
     alt: ai-sparkwrite-editor
@@ -35,6 +35,9 @@ features:
     details: 表格、分割线、带语言检测的代码块、支持裁剪与上传跟踪的图片、分栏、标注框、Katex、Mermaid、Excalidraw，以及 Word/PDF/Markdown 的导入导出。
   - title: 妥善处理粘贴与多语言
     details: Word 列表与代码编辑器片段可正确粘贴；16 种语言按需加载，并匹配相应的中日韩、天城文与孟加拉文字体。
+  - title: 实时协作
+    details: 基于 Yjs 多人同时编辑一篇文档，能看到彼此的光标，撤销只撤自己的。provider 在你自己的 socket 上收发 y-websocket 格式报文，也能接 y-websocket、Hocuspocus 的 provider。
+    link: /zh/guide/collaboration
   - title: 录制与回放
     details: 每一次编辑都可被记录为带时间戳的步骤，并像屏幕录像一样回放整篇文档的编辑过程。
   - title: 适配你的设计系统

@@ -1,6 +1,6 @@
 ---
 name: ai-sparkwrite-editor
-description: Integrate, configure, debug, migrate and review editors built on ai-sparkwrite-editor (SparkWrite), the AI-first Tiptap editor SDK for React and Vue. Use it for RichTextKit and hand-assembled setups, the AI backend contract (`endpoint`), image/video/attachment uploads and deleting orphaned uploads at save time, embeds, notices, toolbars, bubble menus, slash commands, saving and loading documents, localization and theming. Applies whenever this package is requested or already installed; not to generic Tiptap integrations with other UI libraries.
+description: Integrate, configure, debug, migrate and review editors built on ai-sparkwrite-editor (SparkWrite), the AI-first Tiptap editor SDK for React and Vue. Use it for RichTextKit and hand-assembled setups, the AI backend contract (`endpoint`), image/video/attachment uploads and deleting orphaned uploads at save time, embeds, notices, toolbars, bubble menus, slash commands, saving and loading documents, real-time collaboration (Yjs), localization and theming. Applies whenever this package is requested or already installed; not to generic Tiptap integrations with other UI libraries.
 ---
 
 # ai-sparkwrite-editor

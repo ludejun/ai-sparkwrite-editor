@@ -4,7 +4,7 @@ layout: home
 hero:
   name: ai-sparkwrite-editor
   text: Tell it what you want. It writes it in the page.
-  tagline: An AI-first editor SDK on Tiptap. Prose, tables, code, task lists, formulas and diagrams are produced by the model and land in the document as real, editable blocks — streaming, undoable, in 16 languages. React and Vue on one framework-free core.
+  tagline: An AI-first editor SDK on Tiptap. Prose, tables, code, task lists, formulas and diagrams are produced by the model and land in the document as real, editable blocks — streaming, undoable, in 16 languages, with real-time collaboration on Yjs. React and Vue on one framework-free core.
   image:
     src: /logo.svg
     alt: ai-sparkwrite-editor
@@ -35,6 +35,9 @@ features:
     details: Tables, dividers, code with language detection, images with cropping and upload tracking, columns, callouts, Katex, Mermaid, Excalidraw, Word/PDF/Markdown import and export.
   - title: Pastes and languages handled
     details: Word lists and code-editor snippets paste correctly; 16 languages load on demand with matching CJK, Devanagari and Bengali fonts.
+  - title: Real-time collaboration
+    details: Several people in one document over Yjs, with each other's carets and their own undo. The provider speaks the y-websocket format over a socket you own; y-websocket and Hocuspocus providers plug in too.
+    link: /guide/collaboration
   - title: Record and replay
     details: Every edit can be recorded as timestamped steps and played back like a screen recording of the document.
   - title: Fits your design system
