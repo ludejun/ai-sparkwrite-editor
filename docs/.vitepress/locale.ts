@@ -35,7 +35,7 @@ export function getLocaleConfig(lang: string) {
   });
   const title = 'ai-sparkwrite-editor';
   const description = t(
-    'AI-first rich-text editor SDK on Tiptap: streaming AI writing as real document nodes, formulas and diagrams from a sentence, 16 languages, session replay. React and Vue UIs, framework-agnostic core.'
+    'AI-first rich-text editor SDK on Tiptap: streaming AI writing as real document nodes, formulas and diagrams from a sentence, real-time collaboration (Yjs), 16 languages, session replay. React and Vue UIs, framework-agnostic core.'
   );
 
   const head: HeadConfig[] = [

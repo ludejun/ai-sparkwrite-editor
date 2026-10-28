@@ -79,7 +79,7 @@ export async function writeLlmsFiles(config: SiteConfig): Promise<void> {
   const header = [
     '# ai-sparkwrite-editor',
     '',
-    '> AI-first rich-text editor SDK on Tiptap for React and Vue: the model writes into the document as real nodes. `RichTextKit` is the whole editor as one extension; every feature is also importable on its own. AI goes through one backend URL (`endpoint`); uploads are app-provided callbacks returning durable URLs.',
+    '> AI-first rich-text editor SDK on Tiptap for React and Vue: the model writes into the document as real nodes. `RichTextKit` is the whole editor as one extension; every feature is also importable on its own. AI goes through one backend URL (`endpoint`); uploads are app-provided callbacks returning durable URLs; real-time collaboration runs on Yjs over any transport (`YSyncProvider`, `collaborationKitOptions`).',
     '',
     `Docs: ${docsLink}/ · Repository: https://github.com/ludejun/ai-sparkwrite-editor · npm: ai-sparkwrite-editor ${version}`,
     '',

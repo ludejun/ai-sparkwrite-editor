@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>Tell the editor what you want. It writes it, right there in the page.</b><br/>
-  An AI-first rich-text editor SDK on Tiptap for React and Vue: prose, tables, code, task lists, formulas and diagrams are produced by the model and land in the document as real, editable blocks.
+  An AI-first rich-text editor SDK on Tiptap for React and Vue: prose, tables, code, task lists, formulas and diagrams are produced by the model and land in the document as real, editable blocks — and several people can edit at once, with real-time collaboration on Yjs.
 </p>
 
 <p align="center">

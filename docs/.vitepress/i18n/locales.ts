@@ -33,8 +33,8 @@ export const zh: Record<string, string> = {
   'The page you are looking for does not exist or has moved.': '你访问的页面不存在或已移动。',
   'go to home': '回到首页',
   'Take me home': '回到首页',
-  'AI-first rich-text editor SDK on Tiptap: streaming AI writing as real document nodes, formulas and diagrams from a sentence, 16 languages, session replay. React and Vue UIs, framework-agnostic core.':
-    '基于 Tiptap 的 AI 优先富文本编辑器 SDK：AI 流式写入真实文档节点，一句话生成公式与图表，16 种语言，编辑回放。React 与 Vue UI，框架无关的核心。',
+  'AI-first rich-text editor SDK on Tiptap: streaming AI writing as real document nodes, formulas and diagrams from a sentence, real-time collaboration (Yjs), 16 languages, session replay. React and Vue UIs, framework-agnostic core.':
+    '基于 Tiptap 的 AI 优先富文本编辑器 SDK：AI 流式写入真实文档节点，一句话生成公式与图表，基于 Yjs 的实时协作，16 种语言，编辑回放。React 与 Vue UI，框架无关的核心。',
   'Loading...': '加载中…',
 };
 

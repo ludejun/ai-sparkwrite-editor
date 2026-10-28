@@ -1,22 +1,27 @@
 {
   "name": "ai-sparkwrite-editor",
-  "version": "1.3.0",
-  "description": "AI-first rich-text editor SDK on Tiptap: streaming AI writing that lands as real document nodes, AI-generated formulas and diagrams, plus toolbar, bubble menus, tables, code, images, 16 languages and session replay. React UI today, framework-agnostic core.",
+  "version": "1.4.0",
+  "description": "AI-first rich-text editor SDK on Tiptap: streaming AI writing that lands as real document nodes, AI-generated formulas and diagrams, real-time collaboration (Yjs), plus toolbar, bubble menus, tables, code, images, 16 languages and session replay. React and Vue UIs, framework-agnostic core.",
   "keywords": [
     "ai",
     "ai-editor",
     "anthropic",
+    "collaboration",
+    "collaborative-editing",
     "editor",
     "llm",
     "markdown",
     "openai",
     "prosemirror",
     "react",
+    "real-time",
     "rich-text",
     "streaming",
     "tailwind",
     "tiptap",
-    "wysiwyg"
+    "vue",
+    "wysiwyg",
+    "yjs"
   ],
   "homepage": "https://github.com/ludejun/ai-sparkwrite-editor#readme",
   "bugs": {
